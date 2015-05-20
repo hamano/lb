@@ -9,7 +9,7 @@ import (
 //	"reflect"
 	"github.com/codegangsta/cli"
 	"github.com/satori/go.uuid"
-	"github.com/mqu/openldap"
+	"./job"
 )
 
 type Result struct {
@@ -21,81 +21,11 @@ type Result struct {
 	elapsedTime float64
 }
 
-type Job interface {
-	init(int, *cli.Context) bool
-	request() bool
-	getVerbose() int
-	IncCount()
-	getCount() int
-	IncSuccess()
-	getSuccess() int
-}
-
-type BaseJob struct {
-	ldap *openldap.Ldap
-	wid int
-	count int
-	success int
-	verbose int
-}
-
-func (job *BaseJob) request() bool {
-	if job.verbose >= 3 {
-		log.Printf("[%d]: %d\n", job.wid, job.count)
-	}
-	time.Sleep(1000 * time.Millisecond)
-	return true
-}
-
-func (job *BaseJob) getVerbose() int {
-	return job.verbose
-}
-
-func (job *BaseJob) IncCount() {
-	job.count++
-}
-
-func (job *BaseJob) getCount() int {
-	return job.count
-}
-
-func (job *BaseJob) IncSuccess() {
-	job.success++
-}
-
-func (job *BaseJob) getSuccess() int {
-	return job.success
-}
-
 type AddJob struct {
-	BaseJob
+	job.BaseJob
 }
 
-func (job *BaseJob) init(wid int, c *cli.Context) bool {
-	job.wid = wid
-	job.verbose = c.Int("verbose")
-	url := c.Args().First()
-
-	if job.verbose >= 2 {
-		log.Printf("worker[%d]: initialize %s\n", job.wid, url)
-	}
-	var err error
-	job.ldap, err = openldap.Initialize(url)
-	if err != nil {
-		log.Fatal("initialize err=%d\n", err)
-		return false
-	}
-	job.ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
-	//defer ldap.Close()
-	err = job.ldap.Bind(c.String("D"), c.String("w"))
-	if err != nil {
-		log.Printf("bind err: %s", err)
-		return false
-	}
-	return true
-}
-
-func (job *AddJob) request() bool {
+func (j *AddJob) Request() bool {
 	cn := uuid.NewV1().String()
 	dn := fmt.Sprintf("cn=%s,dc=example,dc=com", cn)
 	attrs := map[string][]string{
@@ -104,7 +34,7 @@ func (job *AddJob) request() bool {
 		"sn": {"test"},
 		"userPassword": {"secret"},
 	}
-	err := job.ldap.Add(dn, attrs)
+	err := j.Ldap.Add(dn, attrs)
 	if err != nil {
 		log.Printf("add err: %s", err)
 		return false
@@ -116,29 +46,29 @@ func worker(wid int,
 	c *cli.Context,
 	rx chan string,
 	tx chan Result,
-	job Job) {
+	j job.Job) {
 	num := c.Int("n")
-	job.init(wid, c)
+	j.Init(wid, c)
 	var result Result
 	tx <- result
 	<- rx
-	if job.getVerbose() >= 2 {
+	if j.GetVerbose() >= 2 {
 		log.Printf("worker[%d]: starting job\n", wid)
 	}
 	result.startTime = time.Now()
 
 	for i := 0; i < num; i++ {
-		res := job.request()
+		res := j.Request()
 		if res {
-			job.IncSuccess()
+			j.IncSuccess()
 		}
-		job.IncCount()
+		j.IncCount()
 	}
 	result.endTime = time.Now()
 	result.elapsedTime = result.endTime.Sub(result.startTime).Seconds()
 	result.wid = wid
-	result.count = job.getCount()
-	result.success = job.getSuccess()
+	result.count = j.GetCount()
+	result.success = j.GetSuccess()
 	tx <- result
 }
 
@@ -203,8 +133,8 @@ func add(c *cli.Context) {
 	rx := make(chan Result)
 
 	for i := 0; i < workerNum; i++ {
-		job := &AddJob{}
-		go worker(i, c, tx, rx, job)
+		j := &AddJob{}
+		go worker(i, c, tx, rx, j)
 	}
 	waitReady(rx, workerNum)
 	// all worker are ready
@@ -215,8 +145,15 @@ func add(c *cli.Context) {
 	reportResult(c, results)
 }
 
-func bind(c *cli.Context) {
+func test(c *cli.Context) {
+	log.Printf("test")
+}
 
+func printHeader(c *cli.Context) error {
+	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
+	fmt.Printf("CPU Number: %d\n", runtime.NumCPU())
+	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
+	return nil
 }
 
 var commonFlags = []cli.Flag {
@@ -248,25 +185,34 @@ var commonFlags = []cli.Flag {
 }
 
 func main() {
-	log.Printf("CPU Number: %d\n", runtime.NumCPU())
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
-
 	app := cli.NewApp()
 	app.Name = "lb"
+	app.Usage = "LDAP Benchmarking Tool"
+	app.Version = "0.1"
 	app.Commands = []cli.Command{
 		{
 			Name: "add",
-			Usage: "LDAP ADD Benchmarking",
+			Usage: "LDAP ADD Test",
+			Before: printHeader,
 			Action: add,
 			Flags: commonFlags,
 		},
 		{
 			Name: "bind",
-			Usage: "LDAP BIND Benchmarking",
-			Action: bind,
+			Usage: "LDAP BIND Test",
+			Before: printHeader,
+			Action: job.Bind,
 			Flags: commonFlags,
 		},
+		{
+			Name: "test",
+			Usage: "Test",
+			Before: printHeader,
+			Action: test,
+			Flags: commonFlags,
+		},
+
 	}
 	app.Run(os.Args)
 }
