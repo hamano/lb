@@ -6,73 +6,41 @@ import (
 	"log"
 	"time"
 	"math"
-//	"errors"
+	"errors"
 	"runtime"
-//	"reflect"
+	"reflect"
 	"github.com/codegangsta/cli"
-	"github.com/mqu/openldap"
-	"github.com/satori/go.uuid"
-	"./job"
 )
-
-type Result struct {
-	wid int
-	count int
-	success int
-	startTime time.Time
-	endTime time.Time
-	elapsedTime float64
-}
-
-type AddJob struct {
-	job.BaseJob
-}
-
-func (j *AddJob) Request() bool {
-	cn := uuid.NewV1().String()
-	dn := fmt.Sprintf("cn=%s,dc=example,dc=com", cn)
-	attrs := map[string][]string{
-		"objectClass": {"person"},
-		"cn": {cn},
-		"sn": {"test"},
-		"userPassword": {"secret"},
-	}
-	err := j.Ldap.Add(dn, attrs)
-	if err != nil {
-		log.Printf("add err: %s", err)
-		return false
-	}
-	return true
-}
 
 func worker(wid int,
 	c *cli.Context,
 	rx chan string,
 	tx chan Result,
-	j job.Job) {
+	job Job) {
+
 	num := c.Int("n")
 	num_per_worker := int(math.Ceil(float64(num) / float64(c.Int("c"))))
-	j.Init(wid, c)
+	job.Init(wid, c)
 	var result Result
 	tx <- result
 	<- rx
-	if j.GetVerbose() >= 2 {
+	if job.GetVerbose() >= 2 {
 		log.Printf("worker[%d]: starting job\n", wid)
 	}
 	result.startTime = time.Now()
 
 	for i := 0; i < num_per_worker; i++ {
-		res := j.Request()
+		res := job.Request()
 		if res {
-			j.IncSuccess()
+			job.IncSuccess()
 		}
-		j.IncCount()
+		job.IncCount()
 	}
 	result.endTime = time.Now()
 	result.elapsedTime = result.endTime.Sub(result.startTime).Seconds()
 	result.wid = wid
-	result.count = j.GetCount()
-	result.success = j.GetSuccess()
+	result.count = job.GetCount()
+	result.success = job.GetSuccess()
 	tx <- result
 }
 
@@ -131,14 +99,30 @@ func reportResult(ctx *cli.Context, results []Result) {
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
 }
 
-func add(c *cli.Context) {
+func checkArgs(c *cli.Context) error {
+	if len(c.Args()) < 1 {
+		cli.ShowAppHelp(c)
+		return errors.New("few args")
+	}
+
+	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
+	fmt.Printf("This software is released under the MIT License.\n")
+	fmt.Printf("\n")
+	fmt.Printf("checkArgs: %+v\n", c.Command.Name)
+	return nil
+}
+
+func runBenchmark(c *cli.Context, jobType reflect.Type) {
+	fmt.Printf("%s Benchmarking: %s\n",
+		jobType.Name(), c.Args().First())
+
 	workerNum := c.Int("c");
 	tx := make(chan string)
 	rx := make(chan Result)
 
 	for i := 0; i < workerNum; i++ {
-		j := &AddJob{}
-		go worker(i, c, tx, rx, j)
+		job := reflect.New(jobType).Interface().(Job)
+		go worker(i, c, tx, rx, job)
 	}
 	waitReady(rx, workerNum)
 	// all worker are ready
@@ -147,43 +131,6 @@ func add(c *cli.Context) {
 	}
 	results := waitResult(rx, workerNum)
 	reportResult(c, results)
-}
-
-func checkArgs(c *cli.Context) error {
-	if len(c.Args()) < 1 {
-		cli.ShowAppHelp(c)
-		return nil
-	}
-
-	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
-	fmt.Printf("This software is released under the MIT License.\n")
-	fmt.Printf("\n")
-	fmt.Printf("\n")
-	return nil
-}
-
-func setup(c *cli.Context) {
-	baseDN := c.String("b")
-	fmt.Printf("Adding base entry: %s\n", baseDN)
-	ldap, err := openldap.Initialize(c.Args().First())
-	if err != nil {
-		log.Fatal("initialize error: ", err)
-	}
-	ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
-	err = ldap.Bind(c.String("D"), c.String("w"))
-	if err != nil {
-		log.Fatal("bind error: ", err)
-	}
-	attrs := map[string][]string{
-		"objectClass": {"dcObject", "organization"},
-		"dc": {"example"},
-		"o": {"example"},
-	}
-	err = ldap.Add(baseDN, attrs)
-	if err != nil {
-		log.Fatal("add error: ", err)
-	}
-	fmt.Printf("Added base entry: %s\n", baseDN)
 }
 
 var commonFlags = []cli.Flag {
@@ -225,13 +172,14 @@ func main() {
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
 	app.Version = "0.1.1"
-	app.Author = "HAMANO Tsukasa <hamano@osstech.co.jp>"
+	app.Author = "HAMANO Tsukasa"
+	app.Email = "hamano@osstech.co.jp"
 	app.Commands = []cli.Command{
 		{
 			Name: "bind",
 			Usage: "LDAP BIND Test",
 			Before: checkArgs,
-			Action: job.Bind,
+			Action: Bind,
 			Flags: commonFlags,
 		},
 		{

@@ -1,4 +1,4 @@
-package job
+package main
 
 import (
 	"log"
@@ -6,6 +6,15 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/mqu/openldap"
 )
+
+type Result struct {
+	wid int
+	count int
+	success int
+	startTime time.Time
+	endTime time.Time
+	elapsedTime float64
+}
 
 type Job interface {
 	Init(int, *cli.Context) bool
