@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+	"math"
 //	"errors"
 	"runtime"
 //	"reflect"
@@ -50,6 +51,7 @@ func worker(wid int,
 	tx chan Result,
 	j job.Job) {
 	num := c.Int("n")
+	num_per_worker := int(math.Ceil(float64(num) / float64(c.Int("c"))))
 	j.Init(wid, c)
 	var result Result
 	tx <- result
@@ -59,7 +61,7 @@ func worker(wid int,
 	}
 	result.startTime = time.Now()
 
-	for i := 0; i < num; i++ {
+	for i := 0; i < num_per_worker; i++ {
 		res := j.Request()
 		if res {
 			j.IncSuccess()
@@ -222,7 +224,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
-	app.Version = "0.1.0"
+	app.Version = "0.1.1"
 	app.Author = "HAMANO Tsukasa <hamano@osstech.co.jp>"
 	app.Commands = []cli.Command{
 		{
