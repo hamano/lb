@@ -114,15 +114,19 @@ func reportResult(ctx *cli.Context, results []Result) {
 	rpq := float64(totalRequest) / takenTime
 	concurrency := ctx.Int("c")
 
-	log.Printf("Concurrency Level: %d\n", concurrency)
-	log.Printf("Time taken for tests: %.3f seconds\n", takenTime)
-	log.Printf("Requests per second: %.2f [#/sec] (mean)\n", rpq)
-	log.Printf("Time per request: %.3f [ms] (mean)\n",
+	fmt.Printf("Concurrency Level: %d\n", concurrency)
+	fmt.Printf("Total Requests: %d\n", totalRequest)
+	fmt.Printf("Success Requests: %d\n", successRequest)
+	fmt.Printf("Success Rate: %d%%\n", successRequest / totalRequest * 100)
+	fmt.Printf("Time taken for tests: %.3f seconds\n", takenTime)
+	fmt.Printf("Requests per second: %.2f [#/sec] (mean)\n", rpq)
+	fmt.Printf("Time per request: %.3f [ms] (mean)\n",
 		float64(concurrency) * takenTime * 1000 / float64(totalRequest))
-	log.Printf("Time per request: %.3f [ms] " +
+	fmt.Printf("Time per request: %.3f [ms] " +
 		"(mean, across all concurrent requests)\n",
 		takenTime * 1000 / float64(totalRequest))
-
+	fmt.Printf("CPU Number: %d\n", runtime.NumCPU())
+	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
 }
 
 func add(c *cli.Context) {
@@ -151,8 +155,8 @@ func checkArgs(c *cli.Context) error {
 
 	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
 	fmt.Printf("This software is released under the MIT License.\n")
-	fmt.Printf("CPU Number: %d\n", runtime.NumCPU())
-	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
+	fmt.Printf("\n")
+	fmt.Printf("\n")
 	return nil
 }
 
