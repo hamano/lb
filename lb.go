@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"time"
+//	"errors"
 	"runtime"
 //	"reflect"
 	"github.com/codegangsta/cli"
+	"github.com/mqu/openldap"
 	"github.com/satori/go.uuid"
 	"./job"
 )
@@ -124,10 +126,6 @@ func reportResult(ctx *cli.Context, results []Result) {
 }
 
 func add(c *cli.Context) {
-	if len(c.Args()) < 1 {
-		cli.ShowAppHelp(c)
-		return
-	}
 	workerNum := c.Int("c");
 	tx := make(chan string)
 	rx := make(chan Result)
@@ -145,15 +143,41 @@ func add(c *cli.Context) {
 	reportResult(c, results)
 }
 
-func test(c *cli.Context) {
-	log.Printf("test")
-}
+func checkArgs(c *cli.Context) error {
+	if len(c.Args()) < 1 {
+		cli.ShowAppHelp(c)
+		return nil
+	}
 
-func printHeader(c *cli.Context) error {
 	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
+	fmt.Printf("This software is released under the MIT License.\n")
 	fmt.Printf("CPU Number: %d\n", runtime.NumCPU())
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
 	return nil
+}
+
+func setup(c *cli.Context) {
+	baseDN := c.String("b")
+	fmt.Printf("Adding base entry: %s\n", baseDN)
+	ldap, err := openldap.Initialize(c.Args().First())
+	if err != nil {
+		log.Fatal("initialize error: ", err)
+	}
+	ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
+	err = ldap.Bind(c.String("D"), c.String("w"))
+	if err != nil {
+		log.Fatal("bind error: ", err)
+	}
+	attrs := map[string][]string{
+		"objectClass": {"dcObject", "organization"},
+		"dc": {"example"},
+		"o": {"example"},
+	}
+	err = ldap.Add(baseDN, attrs)
+	if err != nil {
+		log.Fatal("add error: ", err)
+	}
+	fmt.Printf("Added base entry: %s\n", baseDN)
 }
 
 var commonFlags = []cli.Flag {
@@ -182,6 +206,11 @@ var commonFlags = []cli.Flag {
 		Value: "secret",
 		Usage: "Bind Secret",
 	},
+	cli.StringFlag {
+		Name: "b",
+		Value: "dc=example,dc=com",
+		Usage: "BaseDN",
+	},
 }
 
 func main() {
@@ -189,30 +218,30 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
-	app.Version = "0.1"
+	app.Version = "0.1.0"
+	app.Author = "HAMANO Tsukasa <hamano@osstech.co.jp>"
 	app.Commands = []cli.Command{
-		{
-			Name: "add",
-			Usage: "LDAP ADD Test",
-			Before: printHeader,
-			Action: add,
-			Flags: commonFlags,
-		},
 		{
 			Name: "bind",
 			Usage: "LDAP BIND Test",
-			Before: printHeader,
+			Before: checkArgs,
 			Action: job.Bind,
 			Flags: commonFlags,
 		},
 		{
-			Name: "test",
-			Usage: "Test",
-			Before: printHeader,
-			Action: test,
+			Name: "add",
+			Usage: "LDAP ADD Test",
+			Before: checkArgs,
+			Action: add,
 			Flags: commonFlags,
 		},
-
+		{
+			Name: "setup",
+			Usage: "Add Base Entry",
+			Before: checkArgs,
+			Action: setup,
+			Flags: commonFlags,
+		},
 	}
 	app.Run(os.Args)
 }
