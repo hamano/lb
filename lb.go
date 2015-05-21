@@ -37,6 +37,7 @@ func worker(wid int,
 		job.IncCount()
 	}
 	result.endTime = time.Now()
+	job.Finish()
 	result.elapsedTime = result.endTime.Sub(result.startTime).Seconds()
 	result.wid = wid
 	result.count = job.GetCount()
@@ -171,7 +172,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
-	app.Version = "0.1.1"
+	app.Version = "0.1.2"
 	app.Author = "HAMANO Tsukasa"
 	app.Email = "hamano@osstech.co.jp"
 	app.Commands = []cli.Command{

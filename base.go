@@ -18,6 +18,7 @@ type Result struct {
 
 type Job interface {
 	Init(int, *cli.Context) bool
+	Finish()
 	Request() bool
 	GetVerbose() int
 	IncCount()
@@ -27,7 +28,7 @@ type Job interface {
 }
 
 type BaseJob struct {
-	Ldap *openldap.Ldap
+	ldap *openldap.Ldap
 	wid int
 	count int
 	success int
@@ -70,17 +71,23 @@ func (job *BaseJob) Init(wid int, c *cli.Context) bool {
 		log.Printf("worker[%d]: initialize %s\n", job.wid, url)
 	}
 	var err error
-	job.Ldap, err = openldap.Initialize(url)
+	job.ldap, err = openldap.Initialize(url)
 	if err != nil {
 		log.Fatal("initialize err: ", err)
 		return false
 	}
-	job.Ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
-	//defer ldap.Close()
-	err = job.Ldap.Bind(c.String("D"), c.String("w"))
+	job.ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
+	err = job.ldap.Bind(c.String("D"), c.String("w"))
 	if err != nil {
 		log.Fatal("bind err: ", err)
 		return false
 	}
 	return true
+}
+
+func (job *BaseJob) Finish() {
+	if job.verbose >= 2 {
+		log.Printf("worker[%d]: finalize\n", job.wid)
+	}
+	job.ldap.Close()
 }

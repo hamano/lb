@@ -21,7 +21,7 @@ func (job *AddJob) Request() bool {
 		"sn": {"sn"},
 		"userPassword": {"secret"},
 	}
-	err := job.Ldap.Add(dn, attrs)
+	err := job.ldap.Add(dn, attrs)
 	if err != nil {
 		log.Printf("add error: %s", err)
 		return false
