@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"github.com/codegangsta/cli"
-	"github.com/mqu/openldap"
+	openldap "github.com/hamano/golang-openldap"
 )
 
 func setupBase(c *cli.Context) {
