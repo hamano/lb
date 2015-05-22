@@ -4,23 +4,23 @@ lb - LDAP benchmarking tool like an Apache Bench
 lb is simple benchmarking tool for LDAP Server.
 It is designed to allow perform by command line as with Apache Bench.
 
-# Build
+## Build
 
-## Install dependency
+### Install dependency
 
 * for Debian or Ubuntu
 ~~~
 # apt-get install build-essential libldap2-dev
 ~~~
 
-## Install lb
+### Install lb command
 ~~~
 % go get github.com/hamano/lb
 ~~~
 
-# Usage
+## Usage
 
-## Setup subcommand
+### Setup subcommand
 
 * Add base entry
 ~~~
@@ -29,15 +29,15 @@ It is designed to allow perform by command line as with Apache Bench.
 
 * Add single entry
 ~~~
-% lb setup person --dn 'cn=test,dc=example,dc=com' ldap://localhost/
+% lb setup person --cn 'test' ldap://localhost/
 ~~~
 
 * Add range entry
 ~~~
-% lb setup person --dn 'cn=test%d,dc=example,dc=com' --last 10 ldap://localhost/
+% lb setup person --cn 'user%d' --last 10 ldap://localhost/
 ~~~
 
-## BIND Benchmarking
+### BIND Benchmarking
 
 * BIND Benchmarking to single entry
 
@@ -52,7 +52,7 @@ It will make 1000 bind request with 10 threads.
 % lb bind -D 'cn=test%d,dc=example,dc=com' -w secret --last 10 ldap://localhost/
 ~~~
 
-## ADD Benchmarking
+### ADD Benchmarking
 
 ~~~
 % lb add -n 1000 -c 10 ldap://localhost/
