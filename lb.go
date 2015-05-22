@@ -171,7 +171,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
-	app.Version = "0.1.3"
+	app.Version = Version
 	app.Author = "HAMANO Tsukasa"
 	app.Email = "hamano@osstech.co.jp"
 	app.Commands = []cli.Command{
