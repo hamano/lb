@@ -172,7 +172,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
-	app.Version = "0.1.2"
+	app.Version = "0.1.3"
 	app.Author = "HAMANO Tsukasa"
 	app.Email = "hamano@osstech.co.jp"
 	app.Commands = []cli.Command{
@@ -192,10 +192,16 @@ func main() {
 		},
 		{
 			Name: "setup",
-			Usage: "Add Base Entry",
-			Before: checkArgs,
-			Action: setup,
-			Flags: commonFlags,
+			Usage: "Setup SubCommands",
+			Subcommands: []cli.Command{
+				{
+					Name: "base",
+					Usage: "Add Base Entry",
+					Before: checkArgs,
+					Action: setupBase,
+					Flags: commonFlags,
+				},
+			},
 		},
 	}
 	app.Run(os.Args)
