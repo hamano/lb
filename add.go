@@ -12,6 +12,18 @@ type AddJob struct {
 	BaseJob
 }
 
+func (job *AddJob) Prep(c *cli.Context) bool {
+	if job.GetVerbose() >= 1 {
+		log.Printf("worker[%d]: prepare\n", job.wid)
+	}
+	err := job.ldap.Bind(c.String("D"), c.String("w"))
+	if err != nil {
+		log.Fatal("bind error: ", err)
+		return false
+	}
+	return true
+}
+
 func (job *AddJob) Request() bool {
 	cn := uuid.NewV1().String()
 	dn := fmt.Sprintf("cn=%s,dc=example,dc=com", cn)

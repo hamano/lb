@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 	"github.com/codegangsta/cli"
-	"github.com/mqu/openldap"
+	openldap "github.com/hamano/golang-openldap"
 )
 
 type Result struct {
@@ -18,6 +18,7 @@ type Result struct {
 
 type Job interface {
 	Init(int, *cli.Context) bool
+	Prep(*cli.Context) bool
 	Finish()
 	Request() bool
 	GetVerbose() int
@@ -73,14 +74,16 @@ func (job *BaseJob) Init(wid int, c *cli.Context) bool {
 	var err error
 	job.ldap, err = openldap.Initialize(url)
 	if err != nil {
-		log.Fatal("initialize err: ", err)
+		log.Fatal("initialize error: ", err)
 		return false
 	}
 	job.ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
-	err = job.ldap.Bind(c.String("D"), c.String("w"))
-	if err != nil {
-		log.Fatal("bind err: ", err)
-		return false
+	return true
+}
+
+func (job *BaseJob) Prep(c *cli.Context) bool {
+	if job.GetVerbose() >= 2 {
+		log.Printf("worker[%d]: prepare\n", job.wid)
 	}
 	return true
 }
