@@ -109,7 +109,6 @@ func checkArgs(c *cli.Context) error {
 	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
 	fmt.Printf("This software is released under the MIT License.\n")
 	fmt.Printf("\n")
-	fmt.Printf("checkArgs: %+v\n", c.Command.Name)
 	return nil
 }
 
@@ -200,6 +199,13 @@ func main() {
 					Before: checkArgs,
 					Action: setupBase,
 					Flags: commonFlags,
+				},
+				{
+					Name: "person",
+					Usage: "Add User Entry",
+					Before: checkArgs,
+					Action: setupPerson,
+					Flags: append(commonFlags, setupPersonFlags...),
 				},
 			},
 		},
