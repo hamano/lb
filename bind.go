@@ -2,23 +2,61 @@ package main
 
 import (
 	"log"
-	"time"
+	"fmt"
+	"strings"
 	"reflect"
+	"math/rand"
 	"github.com/codegangsta/cli"
 )
 
 type BindJob struct {
 	BaseJob
+	dn string
+	password string
+	first int
+	last int
+	idRange int
 }
 
-func (job *BindJob) Init(wid int, c *cli.Context) bool {
-	log.Printf("bind init:\n")
+var bindFlags = []cli.Flag {
+	cli.IntFlag {
+		Name: "first",
+		Value: 1,
+		Usage: "first id",
+	},
+	cli.IntFlag {
+		Name: "last",
+		Value: 0,
+		Usage: "last id",
+	},
+}
+func (job *BindJob) Prep(c *cli.Context) bool {
+	if job.GetVerbose() >= 2 {
+		log.Printf("worker[%d]: prepare\n", job.wid)
+	}
+	job.dn = c.String("D")
+	job.password = c.String("w")
+	job.first = c.Int("first")
+	job.last = c.Int("last")
+
+	if strings.Contains(job.dn, "%d") {
+		job.idRange = job.last - job.first + 1
+	}
 	return true
 }
 
 func (job *BindJob) Request() bool {
-	log.Printf("bind request: %d\n", job.count)
-	time.Sleep(1000 * time.Millisecond)
+	var dn string
+	if job.idRange > 0 {
+		id := rand.Intn(job.idRange) + job.first
+		dn = fmt.Sprintf(job.dn, id)
+	} else {
+		dn = job.dn
+	}
+	err := job.ldap.Bind(dn, job.password)
+	if err != nil {
+		return false
+	}
 	return true
 }
 

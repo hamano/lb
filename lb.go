@@ -20,13 +20,16 @@ func worker(wid int,
 
 	num := c.Int("n")
 	num_per_worker := int(math.Ceil(float64(num) / float64(c.Int("c"))))
+
 	job.Init(wid, c)
-	var result Result
-	tx <- result
+	job.Prep(c)
+
+	tx <- Result{}
 	<- rx
 	if job.GetVerbose() >= 2 {
 		log.Printf("worker[%d]: starting job\n", wid)
 	}
+	var result Result
 	result.startTime = time.Now()
 
 	for i := 0; i < num_per_worker; i++ {
@@ -180,7 +183,7 @@ func main() {
 			Usage: "LDAP BIND Test",
 			Before: checkArgs,
 			Action: Bind,
-			Flags: commonFlags,
+			Flags: append(commonFlags, bindFlags...),
 		},
 		{
 			Name: "add",
