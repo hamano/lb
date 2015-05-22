@@ -44,7 +44,7 @@ var setupPersonFlags = []cli.Flag {
 	},
 	cli.StringFlag {
 		Name: "password, userpassword, userPassword",
-		Value: "password",
+		Value: "secret",
 		Usage: "userPassword attribute",
 	},
 	cli.IntFlag {

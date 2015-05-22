@@ -6,7 +6,7 @@ It is designed to allow perform by command line as with Apache Bench.
 
 ## Build
 
-### Install dependency
+### Install dependencies
 
 * for Debian or Ubuntu
 ~~~
