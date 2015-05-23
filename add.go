@@ -12,6 +12,10 @@ type AddJob struct {
 	BaseJob
 }
 
+func Add(c *cli.Context) {
+	runBenchmark(c, reflect.TypeOf(AddJob{}))
+}
+
 func (job *AddJob) Prep(c *cli.Context) bool {
 	if job.GetVerbose() >= 1 {
 		log.Printf("worker[%d]: prepare\n", job.wid)
@@ -39,8 +43,4 @@ func (job *AddJob) Request() bool {
 		return false
 	}
 	return true
-}
-
-func add(c *cli.Context) {
-	runBenchmark(c, reflect.TypeOf(AddJob{}))
 }

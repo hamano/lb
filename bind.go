@@ -30,6 +30,11 @@ var bindFlags = []cli.Flag {
 		Usage: "last id",
 	},
 }
+
+func Bind(c *cli.Context) {
+	runBenchmark(c, reflect.TypeOf(BindJob{}))
+}
+
 func (job *BindJob) Prep(c *cli.Context) bool {
 	if job.GetVerbose() >= 2 {
 		log.Printf("worker[%d]: prepare\n", job.wid)
@@ -39,7 +44,7 @@ func (job *BindJob) Prep(c *cli.Context) bool {
 	job.first = c.Int("first")
 	job.last = c.Int("last")
 
-	if strings.Contains(job.dn, "%d") {
+	if strings.Contains(job.dn, "%") {
 		job.idRange = job.last - job.first + 1
 	}
 	return true
@@ -58,8 +63,4 @@ func (job *BindJob) Request() bool {
 		return false
 	}
 	return true
-}
-
-func Bind(c *cli.Context) {
-	runBenchmark(c, reflect.TypeOf(BindJob{}))
 }

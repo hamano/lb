@@ -179,6 +179,13 @@ func main() {
 	app.Email = "hamano@osstech.co.jp"
 	app.Commands = []cli.Command{
 		{
+			Name: "add",
+			Usage: "LDAP ADD Test",
+			Before: checkArgs,
+			Action: Add,
+			Flags: commonFlags,
+		},
+		{
 			Name: "bind",
 			Usage: "LDAP BIND Test",
 			Before: checkArgs,
@@ -186,11 +193,11 @@ func main() {
 			Flags: append(commonFlags, bindFlags...),
 		},
 		{
-			Name: "add",
-			Usage: "LDAP ADD Test",
+			Name: "search",
+			Usage: "LDAP SEARCH Test",
 			Before: checkArgs,
-			Action: add,
-			Flags: commonFlags,
+			Action: Search,
+			Flags: append(commonFlags, searchFlags...),
 		},
 		{
 			Name: "setup",
