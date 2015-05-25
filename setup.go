@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
+	"strconv"
 	"github.com/codegangsta/cli"
 	openldap "github.com/hamano/golang-openldap"
 )
@@ -70,9 +72,15 @@ func setupPerson(c *cli.Context) {
 		log.Fatal("bind error: ", err)
 	}
 	last := c.Int("last")
+
 	if last > 0 {
 		for i := c.Int("first"); i <= last; i++ {
-			cn := fmt.Sprintf("%s%d", c.String("cn"), i)
+			var cn string
+			if strings.Contains(c.String("cn"), "%") {
+				cn = fmt.Sprintf(c.String("cn"), i)
+			}else {
+				cn = c.String("cn") + strconv.Itoa(i)
+			}
 			setupPersonOne(c, ldap, cn)
 		}
 	}else{
