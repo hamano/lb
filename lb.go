@@ -91,7 +91,8 @@ func reportResult(ctx *cli.Context, results []Result) {
 	fmt.Printf("Concurrency Level: %d\n", concurrency)
 	fmt.Printf("Total Requests: %d\n", totalRequest)
 	fmt.Printf("Success Requests: %d\n", successRequest)
-	fmt.Printf("Success Rate: %d%%\n", successRequest / totalRequest * 100)
+	fmt.Printf("Success Rate: %d%%\n",
+		int(float64(successRequest) / float64(totalRequest) * 100))
 	fmt.Printf("Time taken for tests: %.3f seconds\n", takenTime)
 	fmt.Printf("Requests per second: %.2f [#/sec] (mean)\n", rpq)
 	fmt.Printf("Time per request: %.3f [ms] (mean)\n",
