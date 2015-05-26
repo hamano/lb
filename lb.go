@@ -111,6 +111,7 @@ func checkArgs(c *cli.Context) error {
 	}
 
 	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
+	fmt.Printf("Copyright 2015 Open Source Solution Technology Corporation\n")
 	fmt.Printf("This software is released under the MIT License.\n")
 	fmt.Printf("\n")
 	return nil
