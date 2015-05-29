@@ -22,6 +22,11 @@ type SearchJob struct {
 
 var searchFlags = []cli.Flag {
 	cli.StringFlag {
+		Name: "s",
+		Value: "sub",
+		Usage: "scope",
+	},
+	cli.StringFlag {
 		Name: "a, filter",
 		Value: "(objectClass=*)",
 		Usage: "filter",
@@ -52,10 +57,21 @@ func (job *SearchJob) Prep(c *cli.Context) bool {
 		return false
 	}
 	job.baseDN = c.String("b")
-	job.scope = openldap.LDAP_SCOPE_SUBTREE
 	job.filter = c.String("a")
 	job.first = c.Int("first")
 	job.last = c.Int("last")
+	switch c.String("s") {
+	case "base":
+		job.scope = openldap.LDAP_SCOPE_BASE
+	case "one":
+		job.scope = openldap.LDAP_SCOPE_ONE
+	case "sub":
+		job.scope = openldap.LDAP_SCOPE_SUBTREE
+	case "children":
+		job.scope = openldap.LDAP_SCOPE_CHILDREN
+	default:
+		job.scope = openldap.LDAP_SCOPE_SUBTREE
+	}
 
 	if strings.Contains(job.filter, "%") {
 		job.idRange = job.last - job.first + 1
