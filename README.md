@@ -2,7 +2,7 @@ lb - LDAP benchmarking tool like an Apache Bench
 ================================================
 
 lb is simple benchmarking tool for LDAP Server.
-It is designed to allow perform by command line as with Apache Bench.
+This tool is designed to allow perform by command line such as Apache Bench.
 
 ## Build
 
@@ -10,50 +10,81 @@ It is designed to allow perform by command line as with Apache Bench.
 
 * for Debian or Ubuntu
 ~~~
-# apt-get install build-essential libldap2-dev
+# apt-get install build-essential golang libldap2-dev
+~~~
+
+* Setting GOPATH
+~~~
+$ export GOPATH=~/go
+$ export PATH=$GOPATH/bin:$PATH
 ~~~
 
 ### Install lb command
 ~~~
-% go get github.com/hamano/lb
+$ go get github.com/hamano/lb
 ~~~
 
 ## Usage
+
+lb have setup sub-command that preparing for benchmark.
 
 ### Setup subcommand
 
 * Add base entry
 ~~~
-% lb setup base -b 'dc=example,dc=com' ldap://localhost/
+$ lb setup base -b 'dc=example,dc=com' ldap://localhost/
 ~~~
+This command add base entry.
 
 * Add single entry
 ~~~
-% lb setup person --cn 'test' ldap://localhost/
+$ lb setup person --cn 'test' ldap://localhost/
 ~~~
 
-* Add range entry
+* Add range entries
 ~~~
-% lb setup person --cn 'user%d' --last 10 ldap://localhost/
-~~~
-
-### BIND Benchmarking
-
-* BIND Benchmarking to single entry
-
-~~~
-% lb bind -n 1000 -c 10 -D cn=test,dc=example,dc=com -w secret ldap://localhost:389/
-~~~
-
-It will make 1000 bind request with 10 threads.
-
-* BIND Benchmarking to random entry
-~~~
-% lb bind -D 'cn=test%d,dc=example,dc=com' -w secret --last 10 ldap://localhost/
+$ lb setup person --cn 'user%d' --last 10 ldap://localhost/
 ~~~
 
 ### ADD Benchmarking
 
 ~~~
-% lb add -n 1000 -c 10 ldap://localhost/
+$ lb add -n 1000 -c 10 ldap://localhost/
+~~~
+
+This command add following entries 1000 times with 10 threads.
+
+~~~
+dn: cn=${UUID},dc=example,dc=com
+cn: ${UUID}
+sn: ${UUID}
+userPassword: secret
+~~~
+
+### BIND Benchmarking
+
+* BIND Benchmarking with single entry
+
+~~~
+$ lb bind -n 1000 -c 10 -D cn=user,dc=example,dc=com -w secret ldap://localhost/
+~~~
+This command make 1000 times bind request with 10 threads.
+
+* BIND Benchmarking with ranged random entries
+~~~
+$ lb bind -D 'cn=user%d,dc=example,dc=com' -w secret --last 10 ldap://localhost/
+~~~
+
+### SEARCH Benchmarking
+
+* Search Benchmarking with random filters
+~~~
+$ lb search -n 1000 -c 10 -a "(cn=user%d)" --last 1000 -s sub ldap://localhost/
+~~~
+This command make 1000 times search request with following random filters:
+
+~~~
+(cn=user1)
+...
+(cn=user1000)
 ~~~
