@@ -2,3 +2,8 @@ language: go
 
 go:
   - 1.3
+
+install:
+  - go get github.com/codegangsta/cli
+  - go get github.com/satori/go.uuid
+  - go get github.com/hamano/golang-openldap
