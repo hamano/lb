@@ -88,3 +88,6 @@ This command make 1000 times search request with following random filters:
 ...
 (cn=user1000)
 ~~~
+
+## TODO
+* DELETE benchmarking
