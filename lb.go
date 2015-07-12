@@ -185,7 +185,7 @@ func main() {
 			Usage: "LDAP ADD Test",
 			Before: checkArgs,
 			Action: Add,
-			Flags: commonFlags,
+			Flags: append(commonFlags, addFlags...),
 		},
 		{
 			Name: "bind",

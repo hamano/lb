@@ -10,6 +10,14 @@ import (
 
 type AddJob struct {
 	BaseJob
+	uuid bool
+}
+
+var addFlags = []cli.Flag {
+	cli.BoolFlag {
+		Name: "uuid",
+		Usage: "use UUID",
+	},
 }
 
 func Add(c *cli.Context) {
@@ -20,6 +28,7 @@ func (job *AddJob) Prep(c *cli.Context) bool {
 	if job.GetVerbose() >= 1 {
 		log.Printf("worker[%d]: prepare\n", job.wid)
 	}
+	job.uuid = c.Bool("uuid")
 	err := job.ldap.Bind(c.String("D"), c.String("w"))
 	if err != nil {
 		log.Fatal("bind error: ", err)
@@ -29,7 +38,12 @@ func (job *AddJob) Prep(c *cli.Context) bool {
 }
 
 func (job *AddJob) Request() bool {
-	cn := uuid.NewV1().String()
+	var cn string
+	if job.uuid {
+		cn = uuid.NewV1().String()
+	} else {
+		cn = fmt.Sprintf("%d-%d", job.wid, job.count)
+	}
 	dn := fmt.Sprintf("cn=%s,dc=example,dc=com", cn)
 	attrs := map[string][]string{
 		"objectClass": {"person"},
