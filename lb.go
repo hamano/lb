@@ -188,6 +188,13 @@ func main() {
 			Flags: append(commonFlags, addFlags...),
 		},
 		{
+			Name: "delete",
+			Usage: "LDAP DELETE Test",
+			Before: checkArgs,
+			Action: Delete,
+			Flags: commonFlags,
+		},
+		{
 			Name: "bind",
 			Usage: "LDAP BIND Test",
 			Before: checkArgs,
