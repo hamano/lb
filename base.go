@@ -30,6 +30,7 @@ type Job interface {
 
 type BaseJob struct {
 	ldap *openldap.Ldap
+	baseDN string
 	wid int
 	count int
 	success int
@@ -67,6 +68,7 @@ func (job *BaseJob) GetSuccess() int {
 func (job *BaseJob) Init(wid int, c *cli.Context) bool {
 	job.wid = wid
 	job.verbose = c.Int("verbose")
+	job.baseDN = c.String("b")
 	url := c.Args().First()
 	if job.verbose >= 2 {
 		log.Printf("worker[%d]: initialize %s\n", job.wid, url)

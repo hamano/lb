@@ -44,7 +44,7 @@ func (job *AddJob) Request() bool {
 	} else {
 		cn = fmt.Sprintf("%d-%d", job.wid, job.count)
 	}
-	dn := fmt.Sprintf("cn=%s,dc=example,dc=com", cn)
+	dn := fmt.Sprintf("cn=%s,%s", cn, job.baseDN)
 	attrs := map[string][]string{
 		"objectClass": {"person"},
 		"cn": {cn},
