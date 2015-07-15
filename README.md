@@ -55,9 +55,21 @@ $ lb add -n 1000 -c 10 ldap://localhost/
 This command add following entries 1000 times with 10 threads.
 
 ~~~
+dn: cn=${THREADID}-${COUNT},dc=example,dc=com
+cn: ${THREADID}-${COUNT}
+sn: sn
+userPassword: secret
+~~~
+
+Use --uuid option if you want to use UUID for cn.
+~~~
+$ lb add -n 1000 -c 10 --uuid ldap://localhost/
+~~~
+
+~~~
 dn: cn=${UUID},dc=example,dc=com
 cn: ${UUID}
-sn: ${UUID}
+sn: sn
 userPassword: secret
 ~~~
 
