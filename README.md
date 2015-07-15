@@ -116,4 +116,4 @@ This command make 1000 times search request with following random filters:
 ~~~
 
 ## TODO
-* DELETE benchmarking
+* MODIFY benchmarking
