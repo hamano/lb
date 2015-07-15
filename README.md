@@ -73,6 +73,20 @@ sn: sn
 userPassword: secret
 ~~~
 
+### DELETE Benchmarking
+
+~~~
+$ lb delete -n 1000 -c 10 ldap://localhost/
+~~~
+
+This command delete following DNs:
+
+~~~
+cn=0-0,dc=example,dc=com
+...
+cn=9-999,dc=example,dc=com
+~~~
+
 ### BIND Benchmarking
 
 * BIND Benchmarking with single entry
