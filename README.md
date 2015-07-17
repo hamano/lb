@@ -49,7 +49,7 @@ $ lb setup person --cn 'user%d' --last 10 ldap://localhost/
 ### ADD Benchmarking
 
 ~~~
-$ lb add -n 1000 -c 10 ldap://localhost/
+$ lb add -c 10 -n 1000 ldap://localhost/
 ~~~
 
 This command add following entries 1000 times with 10 threads.
@@ -63,7 +63,7 @@ userPassword: secret
 
 Use --uuid option if you want to use UUID for cn.
 ~~~
-$ lb add -n 1000 -c 10 --uuid ldap://localhost/
+$ lb add -c 10 -n 1000 --uuid ldap://localhost/
 ~~~
 
 ~~~
@@ -76,7 +76,7 @@ userPassword: secret
 ### DELETE Benchmarking
 
 ~~~
-$ lb delete -n 1000 -c 10 ldap://localhost/
+$ lb delete -c 10 -n 1000 ldap://localhost/
 ~~~
 
 This command delete following DNs:
@@ -92,7 +92,7 @@ cn=9-999,dc=example,dc=com
 * BIND Benchmarking with single entry
 
 ~~~
-$ lb bind -n 1000 -c 10 -D cn=user,dc=example,dc=com -w secret ldap://localhost/
+$ lb bind -c 10 -n 1000 -D cn=user,dc=example,dc=com -w secret ldap://localhost/
 ~~~
 This command make 1000 times bind request with 10 threads.
 
@@ -105,7 +105,7 @@ $ lb bind -D 'cn=user%d,dc=example,dc=com' -w secret --last 10 ldap://localhost/
 
 * Search Benchmarking with random filters
 ~~~
-$ lb search -n 1000 -c 10 -a "(cn=user%d)" --last 1000 -s sub ldap://localhost/
+$ lb search -c 10 -n 1000 -a "(cn=user%d)" --last 1000 -s sub ldap://localhost/
 ~~~
 This command make 1000 times search request with following random filters:
 
