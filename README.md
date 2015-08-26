@@ -13,7 +13,7 @@ This tool is designed to allow perform by command line such as Apache Bench.
 # apt-get install build-essential golang libldap2-dev
 ~~~
 
-* Setting GOPATH
+* Set GOPATH
 ~~~
 $ export GOPATH=~/go
 $ export PATH=$GOPATH/bin:$PATH
@@ -26,7 +26,7 @@ $ go get github.com/hamano/lb
 
 ## Usage
 
-lb have setup sub-command that preparing for benchmark.
+lb have setup sub-command that preparing for benchmarking.
 
 ### Setup subcommand
 
@@ -113,6 +113,12 @@ This command make 1000 times search request with following random filters:
 (cn=user1)
 ...
 (cn=user1000)
+~~~
+
+### MODIFY Benchmarking
+
+~~~
+$ lb modify -c 10 -n 1000 ldap://localhost/
 ~~~
 
 ## TODO
