@@ -9,6 +9,21 @@ import (
 
 type ModifyJob struct {
 	BaseJob
+	attr string
+	value string
+}
+
+var modifyFlags = []cli.Flag {
+	cli.StringFlag {
+		Name: "attr",
+		Value: "sn",
+		Usage: "attribute",
+	},
+	cli.StringFlag {
+		Name: "value",
+		Value: "modified",
+		Usage: "attribute value for modify",
+	},
 }
 
 func Modify(c *cli.Context) {
@@ -24,12 +39,14 @@ func (job *ModifyJob) Prep(c *cli.Context) bool {
 		log.Fatal("bind error: ", err)
 		return false
 	}
+	job.attr = c.String("attr")
+	job.value = c.String("value")
 	return true
 }
 
 func (job *ModifyJob) Request() bool {
 	dn := fmt.Sprintf("cn=%d-%d,%s", job.wid, job.count, job.baseDN)
-	attrs := map[string][]string{"sn":[]string{"modified"}}
+	attrs := map[string][]string{job.attr:[]string{job.value}}
 	err := job.ldap.Modify(dn, attrs)
 	if err != nil {
 		log.Printf("modify error: %s", err)

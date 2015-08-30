@@ -206,7 +206,7 @@ func main() {
 			Usage: "LDAP MODIFY Benchmarking",
 			Before: checkArgs,
 			Action: Modify,
-			Flags: commonFlags,
+			Flags: append(commonFlags, modifyFlags...),
 		},
 		{
 			Name: "search",
