@@ -79,7 +79,7 @@ userPassword: secret
 $ lb delete -c 10 -n 1000 ldap://localhost/
 ~~~
 
-This command delete following DNs:
+This command make delete request with following DNs:
 
 ~~~
 cn=0-0,dc=example,dc=com
@@ -118,8 +118,16 @@ This command make 1000 times search request with following random filters:
 ### MODIFY Benchmarking
 
 ~~~
-$ lb modify -c 10 -n 1000 ldap://localhost/
+$ lb modify -c 10 -n 1000 --attr sn --value modified ldap://localhost/
+~~~
+
+This command make modify request with following DNs:
+
+~~~
+cn=0-0,dc=example,dc=com
+...
+cn=9-999,dc=example,dc=com
 ~~~
 
 ## TODO
-* MODIFY benchmarking
+* modrdn benchmarking
