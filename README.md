@@ -1,6 +1,8 @@
 lb - LDAP benchmarking tool like an Apache Bench
 ================================================
 
+[![Build Status](https://travis-ci.org/hamano/lb.svg?branch=master)](https://travis-ci.org/hamano/lb)
+
 lb is simple benchmarking tool for LDAP Server.
 This tool is designed to allow perform by command line such as Apache Bench.
 
