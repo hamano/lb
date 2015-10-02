@@ -88,20 +88,45 @@ func reportResult(ctx *cli.Context, results []Result) {
 	rpq := float64(totalRequest) / takenTime
 	concurrency := ctx.Int("c")
 
+	if ctx.Bool("short") {
+		printShortResult(concurrency,
+			int(float64(successRequest) / float64(totalRequest) * 100), rpq);
+	}else{
+		printResult(concurrency, totalRequest, successRequest,
+			int(float64(successRequest) / float64(totalRequest) * 100),
+			takenTime, rpq,
+			float64(concurrency) * takenTime * 1000 / float64(totalRequest),
+			takenTime * 1000 / float64(totalRequest))
+	}
+}
+
+func printResult(
+	concurrency int,
+	totalRequest int,
+	successRequest int,
+	successRate int,
+	takenTime float64,
+	rpq float64,
+	tpr float64,
+	tpr_all float64) {
 	fmt.Printf("Concurrency Level: %d\n", concurrency)
 	fmt.Printf("Total Requests: %d\n", totalRequest)
 	fmt.Printf("Success Requests: %d\n", successRequest)
-	fmt.Printf("Success Rate: %d%%\n",
-		int(float64(successRequest) / float64(totalRequest) * 100))
+	fmt.Printf("Success Rate: %d%%\n", successRate)
 	fmt.Printf("Time taken for tests: %.3f seconds\n", takenTime)
 	fmt.Printf("Requests per second: %.2f [#/sec] (mean)\n", rpq)
-	fmt.Printf("Time per request: %.3f [ms] (mean)\n",
-		float64(concurrency) * takenTime * 1000 / float64(totalRequest))
+	fmt.Printf("Time per request: %.3f [ms] (mean)\n", tpr)
 	fmt.Printf("Time per request: %.3f [ms] " +
-		"(mean, across all concurrent requests)\n",
-		takenTime * 1000 / float64(totalRequest))
+		"(mean, across all concurrent requests)\n", tpr_all)
 	fmt.Printf("CPU Number: %d\n", runtime.NumCPU())
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
+}
+
+func printShortResult(
+	concurrency int,
+	successRate int,
+	rpq float64) {
+	fmt.Printf("%d %.2f %d%%\n", concurrency, rpq, successRate)
 }
 
 func checkArgs(c *cli.Context) error {
@@ -110,16 +135,20 @@ func checkArgs(c *cli.Context) error {
 		return errors.New("few args")
 	}
 
-	fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
-	fmt.Printf("Copyright 2015 Open Source Solution Technology Corporation\n")
-	fmt.Printf("This software is released under the MIT License.\n")
-	fmt.Printf("\n")
+	if ! c.Bool("q") {
+		fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
+		fmt.Printf("Copyright 2015 Open Source Solution Technology Corporation\n")
+		fmt.Printf("This software is released under the MIT License.\n")
+		fmt.Printf("\n")
+	}
 	return nil
 }
 
 func runBenchmark(c *cli.Context, jobType reflect.Type) {
-	fmt.Printf("%s Benchmarking: %s\n",
-		jobType.Name(), c.Args().First())
+	if ! c.Bool("q") {
+		fmt.Printf("%s Benchmarking: %s\n",
+			jobType.Name(), c.Args().First())
+	}
 
 	workerNum := c.Int("c");
 	tx := make(chan string)
@@ -143,6 +172,10 @@ var commonFlags = []cli.Flag {
 		Name: "verbose, v",
 		Value: 0,
 		Usage: "How much troubleshooting info to print",
+	},
+	cli.BoolFlag {
+		Name: "quiet, q",
+		Usage: "Quiet flag",
 	},
 	cli.IntFlag {
 		Name: "n",
@@ -169,6 +202,10 @@ var commonFlags = []cli.Flag {
 		Value: "dc=example,dc=com",
 		Usage: "BaseDN",
 	},
+	cli.BoolFlag {
+		Name: "short",
+		Usage: "short result",
+    },
 }
 
 func main() {
