@@ -24,12 +24,16 @@ func setupBase(c *cli.Context) {
 		"objectClass": {"dcObject", "organization"},
 		"o": {"lb"},
 	}
-	fmt.Printf("Adding base entry: %s\n", baseDN)
+	if ! c.Bool("q") {
+		fmt.Printf("Adding base entry: %s\n", baseDN)
+	}
 	err = ldap.Add(baseDN, attrs)
 	if err != nil {
 		log.Fatal("add error: ", err)
 	}
-	fmt.Printf("Added base entry: %s\n", baseDN)
+	if ! c.Bool("q") {
+		fmt.Printf("Added base entry: %s\n", baseDN)
+	}
 	ldap.Close()
 }
 
@@ -103,10 +107,14 @@ func setupPersonOne(c *cli.Context, ldap *openldap.Ldap, cn string) {
 		"sn": {sn},
 		"userPassword": {userPassword},
 	}
-	fmt.Printf("Adding person entry: %s\n", dn)
+	if ! c.Bool("q") {
+		fmt.Printf("Adding person entry: %s\n", dn)
+	}
 	err := ldap.Add(dn, attrs)
 	if err != nil {
 		log.Fatal("add error: ", err)
 	}
-	fmt.Printf("Added person entry: %s\n", dn)
+	if ! c.Bool("q") {
+		fmt.Printf("Added person entry: %s\n", dn)
+	}
 }
