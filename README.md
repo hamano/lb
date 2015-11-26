@@ -15,6 +15,12 @@ This tool is designed to allow perform by command line such as Apache Bench.
 # apt-get install build-essential golang libldap2-dev
 ~~~
 
+* for CentOS7
+~~~
+# yum groupinstall "Development Tools"
+# yum install golang openldap-devel
+~~~
+
 * Set GOPATH
 ~~~
 $ export GOPATH=~/go
