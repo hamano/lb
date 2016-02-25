@@ -13,5 +13,5 @@ clean:
 	rm -rf lb
 
 install:
-	mkdir -p $(DESTDIR)/bin/
-	install -m 755 lb $(DESTDIR)/bin/
+	mkdir -p $(DESTDIR)/usr/bin/
+	install -m 755 lb $(DESTDIR)/usr/bin/
