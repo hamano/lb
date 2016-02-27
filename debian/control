@@ -1,0 +1,16 @@
+Source: lb
+Section: net
+Priority: optional
+Maintainer: HAMANO Tsukasa <hamano@osstech.co.jp>
+Build-Depends: debhelper (>= 9), golang, libldap2-dev
+Standards-Version: 3.9.5
+Homepage: https://github.com/hamano/lb
+Vcs-Git: https://github.com/hamano/lb.git
+Vcs-Browser: https://github.com/hamano/lb/commits/master
+
+Package: lb
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: LDAP benchmarking tool like an Apache Bench
+ lb is simple benchmarking tool for LDAP Server.
+ This tool is designed to allow perform by command line such as Apache Bench.
