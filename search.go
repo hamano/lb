@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 	"math/rand"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	openldap "github.com/hamano/golang-openldap"
 )
 

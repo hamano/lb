@@ -9,7 +9,7 @@ import (
 	"errors"
 	"runtime"
 	"reflect"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 func worker(wid int,

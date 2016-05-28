@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/satori/go.uuid"
 )
 

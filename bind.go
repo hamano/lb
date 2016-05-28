@@ -6,7 +6,7 @@ import (
 	"strings"
 	"reflect"
 	"math/rand"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 type BindJob struct {

@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 	"strconv"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	openldap "github.com/hamano/golang-openldap"
 )
 
