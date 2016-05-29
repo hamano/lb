@@ -9,7 +9,7 @@ import (
 	openldap "github.com/hamano/golang-openldap"
 )
 
-func setupBase(c *cli.Context) {
+func setupBase(c *cli.Context) error {
 	baseDN := c.String("b")
 	ldap, err := openldap.Initialize(c.Args().First())
 	if err != nil {
@@ -35,6 +35,7 @@ func setupBase(c *cli.Context) {
 		fmt.Printf("Added base entry: %s\n", baseDN)
 	}
 	ldap.Close()
+    return nil
 }
 
 var setupPersonFlags = []cli.Flag {
@@ -65,7 +66,7 @@ var setupPersonFlags = []cli.Flag {
 	},
 }
 
-func setupPerson(c *cli.Context) {
+func setupPerson(c *cli.Context) error {
 	ldap, err := openldap.Initialize(c.Args().First())
 	if err != nil {
 		log.Fatal("initialize error: ", err)
@@ -91,9 +92,10 @@ func setupPerson(c *cli.Context) {
 		setupPersonOne(c, ldap, c.String("cn"))
 	}
 	ldap.Close()
+    return nil
 }
 
-func setupPersonOne(c *cli.Context, ldap *openldap.Ldap, cn string) {
+func setupPersonOne(c *cli.Context, ldap *openldap.Ldap, cn string) error {
 	baseDN := c.String("b")
 	sn := c.String("sn")
 	if sn == "" {
@@ -117,4 +119,5 @@ func setupPersonOne(c *cli.Context, ldap *openldap.Ldap, cn string) {
 	if ! c.Bool("q") {
 		fmt.Printf("Added person entry: %s\n", dn)
 	}
+    return nil
 }

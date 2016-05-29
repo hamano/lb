@@ -11,8 +11,9 @@ type DeleteJob struct {
 	BaseJob
 }
 
-func Delete(c *cli.Context) {
+func Delete(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(DeleteJob{}))
+    return nil
 }
 
 func (job *DeleteJob) Prep(c *cli.Context) bool {

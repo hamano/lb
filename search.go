@@ -43,8 +43,9 @@ var searchFlags = []cli.Flag {
 	},
 }
 
-func Search(c *cli.Context) {
+func Search(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(SearchJob{}))
+    return nil
 }
 
 func (job *SearchJob) Prep(c *cli.Context) bool {

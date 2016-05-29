@@ -20,8 +20,9 @@ var addFlags = []cli.Flag {
 	},
 }
 
-func Add(c *cli.Context) {
+func Add(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(AddJob{}))
+    return nil
 }
 
 func (job *AddJob) Prep(c *cli.Context) bool {

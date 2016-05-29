@@ -26,8 +26,9 @@ var modifyFlags = []cli.Flag {
 	},
 }
 
-func Modify(c *cli.Context) {
+func Modify(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(ModifyJob{}))
+    return nil
 }
 
 func (job *ModifyJob) Prep(c *cli.Context) bool {

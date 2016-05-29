@@ -31,8 +31,9 @@ var bindFlags = []cli.Flag {
 	},
 }
 
-func Bind(c *cli.Context) {
+func Bind(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(BindJob{}))
+    return nil
 }
 
 func (job *BindJob) Prep(c *cli.Context) bool {
