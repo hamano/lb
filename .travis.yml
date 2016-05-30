@@ -6,4 +6,4 @@ go:
   - 1.5
   - 1.6
 
-install: make get-deps
+install: make deps

@@ -139,7 +139,7 @@ cn=9-999,dc=example,dc=com
 
 ## Note for golang 1.6
 
-If you use golang 1.6, you need set environment GODEBUG=cgocheck=0
+If you use golang 1.6, you may need to set environment GODEBUG=cgocheck=0
 I'll fix the issue before long.
 
 ~~~
