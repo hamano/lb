@@ -80,6 +80,9 @@ func (job *BaseJob) Init(wid int, c *cli.Context) bool {
 		return false
 	}
 	job.ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
+	if c.Bool("Z") {
+		job.ldap.StartTLS()
+	}
 	return true
 }
 
