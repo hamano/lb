@@ -203,9 +203,13 @@ var commonFlags = []cli.Flag {
 		Usage: "BaseDN",
 	},
 	cli.BoolFlag {
+		Name: "starttls, Z",
+		Usage: "Use StartTLS",
+	},
+	cli.BoolFlag {
 		Name: "short",
 		Usage: "short result",
-    },
+	},
 }
 
 func main() {
