@@ -40,8 +40,9 @@ func (job *AddJob) Prep(c *cli.Context) bool {
 
 func (job *AddJob) Request() bool {
 	var cn string
+	id, err := uuid.NewV1()
 	if job.uuid {
-		cn = uuid.NewV1().String()
+		cn = id.String()
 	} else {
 		cn = fmt.Sprintf("%d-%d", job.wid, job.count)
 	}
@@ -52,7 +53,7 @@ func (job *AddJob) Request() bool {
 		"sn": {"sn"},
 		"userPassword": {"secret"},
 	}
-	err := job.ldap.Add(dn, attrs)
+	err = job.ldap.Add(dn, attrs)
 	if err != nil {
 		log.Printf("add error: %s", err)
 		return false
