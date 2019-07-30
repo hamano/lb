@@ -1,3 +1,9 @@
+lb (0.9.4-1) unstable; urgency=low
+
+  * become pure golang
+
+ -- HAMANO Tsukasa <hamano@osstech.co.jp>  Tue, 30 Jul 2019 12:07:08 +0900
+
 lb (0.9.3-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
