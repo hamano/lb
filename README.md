@@ -12,28 +12,18 @@ This tool is designed to allow perform by command line such as Apache Bench.
 
 * for Debian or Ubuntu
 ~~~
-# apt-get install build-essential golang libldap2-dev
+# apt-get install build-essential golang
 ~~~
 
 * for CentOS7
 ~~~
 # yum groupinstall "Development Tools"
-# yum install golang openldap-devel
 ~~~
 
 * Set GOPATH
 ~~~
 $ export GOPATH=~/go
 $ export PATH=$GOPATH/bin:$PATH
-~~~
-
-## Note for golang 1.6
-
-If you use golang 1.6, you may need to set environment GODEBUG=cgocheck=0
-I'll fix the issue before long.
-
-~~~
-$ export GODEBUG=cgocheck=0
 ~~~
 
 ### Install lb command
