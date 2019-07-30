@@ -1,18 +1,19 @@
 package main
 
 import (
+	"crypto/tls"
+	"github.com/urfave/cli"
+	"gopkg.in/ldap.v3"
 	"log"
 	"time"
-	"github.com/urfave/cli"
-	openldap "github.com/hamano/golang-openldap"
 )
 
 type Result struct {
-	wid int
-	count int
-	success int
-	startTime time.Time
-	endTime time.Time
+	wid         int
+	count       int
+	success     int
+	startTime   time.Time
+	endTime     time.Time
 	elapsedTime float64
 }
 
@@ -29,10 +30,10 @@ type Job interface {
 }
 
 type BaseJob struct {
-	ldap *openldap.Ldap
-	baseDN string
-	wid int
-	count int
+	conn    *ldap.Conn
+	baseDN  string
+	wid     int
+	count   int
 	success int
 	verbose int
 }
@@ -74,14 +75,14 @@ func (job *BaseJob) Init(wid int, c *cli.Context) bool {
 		log.Printf("worker[%d]: initialize %s\n", job.wid, url)
 	}
 	var err error
-	job.ldap, err = openldap.Initialize(url)
+	job.conn, err = ldap.DialURL(url)
 	if err != nil {
 		log.Fatal("initialize error: ", err)
 		return false
 	}
-	job.ldap.SetOption(openldap.LDAP_OPT_PROTOCOL_VERSION, openldap.LDAP_VERSION3)
+
 	if c.Bool("Z") {
-		job.ldap.StartTLS()
+		job.conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
 	}
 	return true
 }
@@ -97,5 +98,5 @@ func (job *BaseJob) Finish() {
 	if job.verbose >= 2 {
 		log.Printf("worker[%d]: finalize\n", job.wid)
 	}
-	job.ldap.Close()
+	job.conn.Close()
 }

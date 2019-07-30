@@ -1,31 +1,31 @@
 package main
 
 import (
-	"log"
 	"fmt"
-	"strings"
-	"reflect"
-	"math/rand"
 	"github.com/urfave/cli"
+	"log"
+	"math/rand"
+	"reflect"
+	"strings"
 )
 
 type BindJob struct {
 	BaseJob
-	dn string
+	dn       string
 	password string
-	first int
-	last int
-	idRange int
+	first    int
+	last     int
+	idRange  int
 }
 
-var bindFlags = []cli.Flag {
-	cli.IntFlag {
-		Name: "first",
+var bindFlags = []cli.Flag{
+	cli.IntFlag{
+		Name:  "first",
 		Value: 1,
 		Usage: "first id",
 	},
-	cli.IntFlag {
-		Name: "last",
+	cli.IntFlag{
+		Name:  "last",
 		Value: 0,
 		Usage: "last id",
 	},
@@ -33,7 +33,7 @@ var bindFlags = []cli.Flag {
 
 func Bind(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(BindJob{}))
-    return nil
+	return nil
 }
 
 func (job *BindJob) Prep(c *cli.Context) bool {
@@ -59,7 +59,7 @@ func (job *BindJob) Request() bool {
 	} else {
 		dn = job.dn
 	}
-	err := job.ldap.Bind(dn, job.password)
+	err := job.conn.Bind(dn, job.password)
 	if err != nil {
 		return false
 	}

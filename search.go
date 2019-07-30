@@ -2,42 +2,42 @@ package main
 
 import (
 	"fmt"
+	"github.com/urfave/cli"
+	"gopkg.in/ldap.v3"
 	"log"
+	"math/rand"
 	"reflect"
 	"strings"
-	"math/rand"
-	"github.com/urfave/cli"
-	openldap "github.com/hamano/golang-openldap"
 )
 
 type SearchJob struct {
 	BaseJob
-	baseDN string
-	scope int
-	filter string
-	first int
-	last int
+	baseDN  string
+	scope   int
+	filter  string
+	first   int
+	last    int
 	idRange int
 }
 
-var searchFlags = []cli.Flag {
-	cli.StringFlag {
-		Name: "s",
+var searchFlags = []cli.Flag{
+	cli.StringFlag{
+		Name:  "s",
 		Value: "sub",
 		Usage: "scope",
 	},
-	cli.StringFlag {
-		Name: "a, filter",
+	cli.StringFlag{
+		Name:  "a, filter",
 		Value: "(objectClass=*)",
 		Usage: "filter",
 	},
-	cli.IntFlag {
-		Name: "first",
+	cli.IntFlag{
+		Name:  "first",
 		Value: 1,
 		Usage: "first id",
 	},
-	cli.IntFlag {
-		Name: "last",
+	cli.IntFlag{
+		Name:  "last",
 		Value: 0,
 		Usage: "last id",
 	},
@@ -45,14 +45,14 @@ var searchFlags = []cli.Flag {
 
 func Search(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(SearchJob{}))
-    return nil
+	return nil
 }
 
 func (job *SearchJob) Prep(c *cli.Context) bool {
 	if job.GetVerbose() >= 1 {
 		log.Printf("worker[%d]: prepare\n", job.wid)
 	}
-	err := job.ldap.Bind(c.String("D"), c.String("w"))
+	err := job.conn.Bind(c.String("D"), c.String("w"))
 	if err != nil {
 		log.Fatal("bind error: ", err)
 		return false
@@ -63,15 +63,15 @@ func (job *SearchJob) Prep(c *cli.Context) bool {
 	job.last = c.Int("last")
 	switch c.String("s") {
 	case "base":
-		job.scope = openldap.LDAP_SCOPE_BASE
+		job.scope = ldap.ScopeBaseObject
 	case "one":
-		job.scope = openldap.LDAP_SCOPE_ONE
+		job.scope = ldap.ScopeSingleLevel
 	case "sub":
-		job.scope = openldap.LDAP_SCOPE_SUBTREE
+		job.scope = ldap.ScopeWholeSubtree
 	case "children":
-		job.scope = openldap.LDAP_SCOPE_CHILDREN
+		job.scope = 3
 	default:
-		job.scope = openldap.LDAP_SCOPE_SUBTREE
+		job.scope = ldap.ScopeWholeSubtree
 	}
 
 	if strings.Contains(job.filter, "%") {
@@ -88,11 +88,18 @@ func (job *SearchJob) Request() bool {
 	} else {
 		filter = job.filter
 	}
-	res, err := job.ldap.SearchAll(job.baseDN, job.scope, filter, []string{"dn"})
+	req := ldap.SearchRequest{
+		BaseDN:       job.baseDN,
+		Scope:        job.scope,
+		DerefAliases: 0,
+		Filter:       filter,
+		Attributes:   []string{"dn"},
+	}
+	res, err := job.conn.Search(&req)
 	if err != nil {
 		return false
 	}
-	if res.Count() == 0 {
+	if len(res.Entries) == 0 {
 		return false
 	}
 	return true

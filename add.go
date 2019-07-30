@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
+	"github.com/urfave/cli"
+	"gopkg.in/ldap.v3"
 	"log"
 	"reflect"
-	"github.com/urfave/cli"
-	"github.com/satori/go.uuid"
 )
 
 type AddJob struct {
@@ -13,16 +14,16 @@ type AddJob struct {
 	uuid bool
 }
 
-var addFlags = []cli.Flag {
-	cli.BoolFlag {
-		Name: "uuid",
+var addFlags = []cli.Flag{
+	cli.BoolFlag{
+		Name:  "uuid",
 		Usage: "use UUID",
 	},
 }
 
 func Add(c *cli.Context) error {
 	runBenchmark(c, reflect.TypeOf(AddJob{}))
-    return nil
+	return nil
 }
 
 func (job *AddJob) Prep(c *cli.Context) bool {
@@ -30,7 +31,7 @@ func (job *AddJob) Prep(c *cli.Context) bool {
 		log.Printf("worker[%d]: prepare\n", job.wid)
 	}
 	job.uuid = c.Bool("uuid")
-	err := job.ldap.Bind(c.String("D"), c.String("w"))
+	err := job.conn.Bind(c.String("D"), c.String("w"))
 	if err != nil {
 		log.Fatal("bind error: ", err)
 		return false
@@ -47,13 +48,17 @@ func (job *AddJob) Request() bool {
 		cn = fmt.Sprintf("%d-%d", job.wid, job.count)
 	}
 	dn := fmt.Sprintf("cn=%s,%s", cn, job.baseDN)
-	attrs := map[string][]string{
-		"objectClass": {"person"},
-		"cn": {cn},
-		"sn": {"sn"},
-		"userPassword": {"secret"},
+	attrs := []ldap.Attribute{
+		ldap.Attribute{"objectClass", []string{"person"}},
+		ldap.Attribute{"cn", []string{cn}},
+		ldap.Attribute{"sn", []string{"sn"}},
+		ldap.Attribute{"userPassword", []string{"secret"}},
 	}
-	err = job.ldap.Add(dn, attrs)
+	req := ldap.AddRequest{
+		DN:         dn,
+		Attributes: attrs,
+	}
+	err = job.conn.Add(&req)
 	if err != nil {
 		log.Printf("add error: %s", err)
 		return false

@@ -7,7 +7,7 @@ lb: $(SRCS)
 deps:
 	go get -u github.com/urfave/cli
 	go get -u github.com/satori/go.uuid
-	go get -u github.com/hamano/golang-openldap
+	go get -u gopkg.in/ldap.v3
 
 clean:
 	rm -rf lb
