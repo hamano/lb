@@ -8,19 +8,18 @@ This tool is designed to allow perform by command line such as Apache Bench.
 
 ## Build
 
-### Install dependencies
+### Build requirements
 
-* for Debian or Ubuntu
-~~~
-# apt-get install build-essential golang
-~~~
+* Golang 1.4 or later
 
-* for CentOS7
+for Debian or Ubuntu
+
 ~~~
-# yum groupinstall "Development Tools"
+# apt-get install golang
 ~~~
 
-* Set GOPATH
+Set GOPATH
+
 ~~~
 $ export GOPATH=~/go
 $ export PATH=$GOPATH/bin:$PATH
