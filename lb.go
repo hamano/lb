@@ -1,14 +1,15 @@
 package main
 
 import (
-	"os"
+	"errors"
 	"fmt"
 	"log"
-	"time"
 	"math"
-	"errors"
-	"runtime"
+	"os"
 	"reflect"
+	"runtime"
+	"time"
+
 	"github.com/urfave/cli"
 )
 
@@ -25,7 +26,7 @@ func worker(wid int,
 	job.Prep(c)
 
 	tx <- Result{}
-	<- rx
+	<-rx
 	if job.GetVerbose() >= 2 {
 		log.Printf("worker[%d]: starting job\n", wid)
 	}
@@ -48,16 +49,16 @@ func worker(wid int,
 	tx <- result
 }
 
-func waitReady(ch chan Result, n int){
+func waitReady(ch chan Result, n int) {
 	for i := 0; i < n; i++ {
-		<- ch
+		<-ch
 	}
 }
 
 func waitResult(ch chan Result, n int) []Result {
 	results := make([]Result, n)
 	for i := 0; i < n; i++ {
-		result := <- ch
+		result := <-ch
 		results[result.wid] = result
 	}
 	return results
@@ -90,13 +91,13 @@ func reportResult(ctx *cli.Context, results []Result) {
 
 	if ctx.Bool("short") {
 		printShortResult(concurrency,
-			int(float64(successRequest) / float64(totalRequest) * 100), rpq);
-	}else{
+			int(float64(successRequest)/float64(totalRequest)*100), rpq)
+	} else {
 		printResult(concurrency, totalRequest, successRequest,
-			int(float64(successRequest) / float64(totalRequest) * 100),
+			int(float64(successRequest)/float64(totalRequest)*100),
 			takenTime, rpq,
-			float64(concurrency) * takenTime * 1000 / float64(totalRequest),
-			takenTime * 1000 / float64(totalRequest))
+			float64(concurrency)*takenTime*1000/float64(totalRequest),
+			takenTime*1000/float64(totalRequest))
 	}
 }
 
@@ -116,7 +117,7 @@ func printResult(
 	fmt.Printf("Time taken for tests: %.3f seconds\n", takenTime)
 	fmt.Printf("Requests per second: %.2f [#/sec] (mean)\n", rpq)
 	fmt.Printf("Time per request: %.3f [ms] (mean)\n", tpr)
-	fmt.Printf("Time per request: %.3f [ms] " +
+	fmt.Printf("Time per request: %.3f [ms] "+
 		"(mean, across all concurrent requests)\n", tpr_all)
 	fmt.Printf("CPU Number: %d\n", runtime.NumCPU())
 	fmt.Printf("GOMAXPROCS: %d\n", runtime.GOMAXPROCS(0))
@@ -130,12 +131,12 @@ func printShortResult(
 }
 
 func checkArgs(c *cli.Context) error {
-	if len(c.Args()) < 1 {
+	if c.Args().Len() < 1 {
 		cli.ShowAppHelp(c)
 		return errors.New("few args")
 	}
 
-	if ! c.Bool("q") {
+	if !c.Bool("q") {
 		fmt.Printf("This is LDAPBench, Version %s\n", c.App.Version)
 		fmt.Printf("Copyright 2015 Open Source Solution Technology Corporation\n")
 		fmt.Printf("This software is released under the MIT License.\n")
@@ -145,12 +146,12 @@ func checkArgs(c *cli.Context) error {
 }
 
 func runBenchmark(c *cli.Context, jobType reflect.Type) {
-	if ! c.Bool("q") {
+	if !c.Bool("q") {
 		fmt.Printf("%s Benchmarking: %s\n",
 			jobType.Name(), c.Args().First())
 	}
 
-	workerNum := c.Int("c");
+	workerNum := c.Int("c")
 	tx := make(chan string)
 	rx := make(chan Result)
 
@@ -167,47 +168,47 @@ func runBenchmark(c *cli.Context, jobType reflect.Type) {
 	reportResult(c, results)
 }
 
-var commonFlags = []cli.Flag {
-	cli.IntFlag {
-		Name: "verbose, v",
+var commonFlags = []cli.Flag{
+	&cli.IntFlag{
+		Name:  "verbose, v",
 		Value: 0,
 		Usage: "How much troubleshooting info to print",
 	},
-	cli.BoolFlag {
-		Name: "quiet, q",
+	&cli.BoolFlag{
+		Name:  "quiet, q",
 		Usage: "Quiet flag",
 	},
-	cli.IntFlag {
-		Name: "n",
+	&cli.IntFlag{
+		Name:  "n",
 		Value: 1,
 		Usage: "Number of requests to perform",
 	},
-	cli.IntFlag {
-		Name: "c",
+	&cli.IntFlag{
+		Name:  "c",
 		Value: 1,
 		Usage: "Number of multiple requests to make",
 	},
-	cli.StringFlag {
-		Name: "D",
+	&cli.StringFlag{
+		Name:  "D",
 		Value: "cn=Manager,dc=example,dc=com",
 		Usage: "Bind DN",
 	},
-	cli.StringFlag {
-		Name: "w",
+	&cli.StringFlag{
+		Name:  "w",
 		Value: "secret",
 		Usage: "Bind Secret",
 	},
-	cli.StringFlag {
-		Name: "b",
+	&cli.StringFlag{
+		Name:  "b",
 		Value: "dc=example,dc=com",
 		Usage: "BaseDN",
 	},
-	cli.BoolFlag {
-		Name: "starttls, Z",
+	&cli.BoolFlag{
+		Name:  "starttls, Z",
 		Usage: "Use StartTLS",
 	},
-	cli.BoolFlag {
-		Name: "short",
+	&cli.BoolFlag{
+		Name:  "short",
 		Usage: "short result",
 	},
 }
@@ -218,61 +219,65 @@ func main() {
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
 	app.Version = Version
-	app.Author = "HAMANO Tsukasa"
-	app.Email = "hamano@osstech.co.jp"
-	app.Commands = []cli.Command{
+	app.Authors = []*cli.Author{
 		{
-			Name: "add",
-			Usage: "LDAP ADD Benchmarking",
+			Email: "hamano@osstech.co.jp",
+			Name:  "HAMANO Tsukasa",
+		},
+	}
+	app.Commands = []*cli.Command{
+		{
+			Name:   "add",
+			Usage:  "LDAP ADD Benchmarking",
 			Before: checkArgs,
 			Action: Add,
-			Flags: append(commonFlags, addFlags...),
+			Flags:  append(commonFlags, addFlags...),
 		},
 		{
-			Name: "bind",
-			Usage: "LDAP BIND Benchmarking",
+			Name:   "bind",
+			Usage:  "LDAP BIND Benchmarking",
 			Before: checkArgs,
 			Action: Bind,
-			Flags: append(commonFlags, bindFlags...),
+			Flags:  append(commonFlags, bindFlags...),
 		},
 		{
-			Name: "delete",
-			Usage: "LDAP DELETE Benchmarking",
+			Name:   "delete",
+			Usage:  "LDAP DELETE Benchmarking",
 			Before: checkArgs,
 			Action: Delete,
-			Flags: commonFlags,
+			Flags:  commonFlags,
 		},
 		{
-			Name: "modify",
-			Usage: "LDAP MODIFY Benchmarking",
+			Name:   "modify",
+			Usage:  "LDAP MODIFY Benchmarking",
 			Before: checkArgs,
 			Action: Modify,
-			Flags: append(commonFlags, modifyFlags...),
+			Flags:  append(commonFlags, modifyFlags...),
 		},
 		{
-			Name: "search",
-			Usage: "LDAP SEARCH Benchmarking",
+			Name:   "search",
+			Usage:  "LDAP SEARCH Benchmarking",
 			Before: checkArgs,
 			Action: Search,
-			Flags: append(commonFlags, searchFlags...),
+			Flags:  append(commonFlags, searchFlags...),
 		},
 		{
-			Name: "setup",
+			Name:  "setup",
 			Usage: "Setup SubCommands",
-			Subcommands: []cli.Command{
+			Subcommands: []*cli.Command{
 				{
-					Name: "base",
-					Usage: "Add Base Entry",
+					Name:   "base",
+					Usage:  "Add Base Entry",
 					Before: checkArgs,
 					Action: setupBase,
-					Flags: commonFlags,
+					Flags:  commonFlags,
 				},
 				{
-					Name: "person",
-					Usage: "Add User Entry",
+					Name:   "person",
+					Usage:  "Add User Entry",
 					Before: checkArgs,
 					Action: setupPerson,
-					Flags: append(commonFlags, setupPersonFlags...),
+					Flags:  append(commonFlags, setupPersonFlags...),
 				},
 			},
 		},

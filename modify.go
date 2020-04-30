@@ -15,12 +15,12 @@ type ModifyJob struct {
 }
 
 var modifyFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "attr",
 		Value: "sn",
 		Usage: "attribute",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "value",
 		Value: "modified",
 		Usage: "attribute value for modify",

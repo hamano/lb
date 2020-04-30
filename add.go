@@ -15,7 +15,7 @@ type AddJob struct {
 }
 
 var addFlags = []cli.Flag{
-	cli.BoolFlag{
+	&cli.BoolFlag{
 		Name:  "uuid",
 		Usage: "use UUID",
 	},
