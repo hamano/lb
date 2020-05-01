@@ -48,27 +48,27 @@ func setupBase(c *cli.Context) error {
 }
 
 var setupPersonFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "cn",
 		Value: "user",
 		Usage: "cn attribute",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "sn",
 		Value: "",
 		Usage: "sn attribute",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "password, userpassword, userPassword",
 		Value: "secret",
 		Usage: "userPassword attribute",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "first",
 		Value: 1,
 		Usage: "first id",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "last",
 		Value: 0,
 		Usage: "last id",

@@ -19,12 +19,12 @@ type BindJob struct {
 }
 
 var bindFlags = []cli.Flag{
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "first",
 		Value: 1,
 		Usage: "first id",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "last",
 		Value: 0,
 		Usage: "last id",

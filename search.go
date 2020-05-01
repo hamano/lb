@@ -21,22 +21,22 @@ type SearchJob struct {
 }
 
 var searchFlags = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "s",
 		Value: "sub",
 		Usage: "scope",
 	},
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:  "a, filter",
 		Value: "(objectClass=*)",
 		Usage: "filter",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "first",
 		Value: 1,
 		Usage: "first id",
 	},
-	cli.IntFlag{
+	&cli.IntFlag{
 		Name:  "last",
 		Value: 0,
 		Usage: "last id",
