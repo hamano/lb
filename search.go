@@ -12,6 +12,7 @@ import (
 
 type SearchJob struct {
 	BaseJob
+	attributes  []string
 	baseDN  string
 	scope   int
 	filter  string
@@ -30,6 +31,11 @@ var searchFlags = []cli.Flag{
 		Name:  "a, filter",
 		Value: "(objectClass=*)",
 		Usage: "filter",
+	},
+	&cli.StringFlag{
+		Name:  "attributes",
+		Value: "dn",
+		Usage: "space-separated list of attributes as a single string",
 	},
 	&cli.IntFlag{
 		Name:  "first",
@@ -59,6 +65,7 @@ func (job *SearchJob) Prep(c *cli.Context) bool {
 	}
 	job.baseDN = c.String("b")
 	job.filter = c.String("a")
+	job.attributes = strings.Fields(c.String("t"))
 	job.first = c.Int("first")
 	job.last = c.Int("last")
 	switch c.String("s") {
@@ -93,7 +100,7 @@ func (job *SearchJob) Request() bool {
 		Scope:        job.scope,
 		DerefAliases: 0,
 		Filter:       filter,
-		Attributes:   []string{"dn"},
+		Attributes:   job.attributes,
 	}
 	res, err := job.conn.Search(&req)
 	if err != nil {
