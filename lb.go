@@ -131,7 +131,7 @@ func printShortResult(
 }
 
 func checkArgs(c *cli.Context) error {
-	if c.Args().Len() < 1 {
+	if c.NArg() < 1 {
 		cli.ShowAppHelp(c)
 		return errors.New("few args")
 	}
@@ -219,13 +219,13 @@ func main() {
 	app.Name = "lb"
 	app.Usage = "LDAP Benchmarking Tool"
 	app.Version = Version
-	app.Authors = []*cli.Author{
+	app.Authors = []cli.Author{
 		{
 			Email: "hamano@osstech.co.jp",
 			Name:  "HAMANO Tsukasa",
 		},
 	}
-	app.Commands = []*cli.Command{
+	app.Commands = []cli.Command{
 		{
 			Name:   "add",
 			Usage:  "LDAP ADD Benchmarking",
@@ -264,7 +264,7 @@ func main() {
 		{
 			Name:  "setup",
 			Usage: "Setup SubCommands",
-			Subcommands: []*cli.Command{
+			Subcommands: []cli.Command{
 				{
 					Name:   "base",
 					Usage:  "Add Base Entry",

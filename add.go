@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
-	"github.com/urfave/cli"
-	"gopkg.in/ldap.v3"
 	"log"
 	"reflect"
+
+	"github.com/go-ldap/ldap/v3"
+	uuid "github.com/satori/go.uuid"
+	"github.com/urfave/cli"
 )
 
 type AddJob struct {
@@ -41,7 +42,7 @@ func (job *AddJob) Prep(c *cli.Context) bool {
 
 func (job *AddJob) Request() bool {
 	var cn string
-	id, err := uuid.NewV1()
+	id := uuid.NewV1()
 	if job.uuid {
 		cn = id.String()
 	} else {
@@ -58,7 +59,7 @@ func (job *AddJob) Request() bool {
 		DN:         dn,
 		Attributes: attrs,
 	}
-	err = job.conn.Add(&req)
+	err := job.conn.Add(&req)
 	if err != nil {
 		log.Printf("add error: %s", err)
 		return false
