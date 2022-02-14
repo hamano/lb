@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-ldap/ldap/v3"
 	"github.com/urfave/cli"
-	"gopkg.in/ldap.v3"
 	"log"
 	"math/rand"
 	"reflect"
@@ -12,13 +12,13 @@ import (
 
 type SearchJob struct {
 	BaseJob
-	attributes  []string
-	baseDN  string
-	scope   int
-	filter  string
-	first   int
-	last    int
-	idRange int
+	attributes []string
+	baseDN     string
+	scope      int
+	filter     string
+	first      int
+	last       int
+	idRange    int
 }
 
 var searchFlags = []cli.Flag{
