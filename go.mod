@@ -1,6 +1,6 @@
 module github.com/hamano/lb
 
-go 1.17
+go 1.24.0
 
 require (
 	github.com/go-ldap/ldap/v3 v3.4.1
@@ -14,5 +14,5 @@ require (
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 )
