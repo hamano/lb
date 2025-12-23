@@ -28,22 +28,21 @@ impl HasCommonArgs for BindArgs {
 pub struct BindJob {
     base: BaseJob,
     args: BindArgs,
-    id_range: u32,
 }
 
 impl BindJob {
     fn generate_dn(&self) -> String {
-        if self.id_range > 0 {
-            let mut rng = rand::rng();
-            let id = rng.random_range(self.args.first..=self.args.last);
-            self.args.common.bind_dn
-                .replace("%d", &id.to_string())
-                .replace("%04d", &format!("{:04}", id))
-                .replace("%03d", &format!("{:03}", id))
-                .replace("%02d", &format!("{:02}", id))
-        } else {
-            self.args.common.bind_dn.clone()
-        }
+        let mut rng = rand::rng();
+        let id = rng.random_range(0..=self.base.count);
+        let base_dn = self
+            .args
+            .common
+            .bind_dn
+            .splitn(2, ',')
+            .nth(1)
+            .unwrap_or(self.args.common.bind_dn.as_str());
+
+        format!("cn={}-{},{}", self.base.tid, id, base_dn)
     }
 }
 
@@ -52,16 +51,9 @@ impl Job for BindJob {
     type Args = BindArgs;
 
     fn new(tid: usize, args: &Self::Args) -> Self {
-        let id_range = if args.common.bind_dn.contains('%') && args.last > 0 {
-            args.last - args.first + 1
-        } else {
-            0
-        };
-
         BindJob {
             base: BaseJob::new(tid),
             args: args.clone(),
-            id_range,
         }
     }
 
@@ -79,7 +71,6 @@ impl Job for BindJob {
 
     async fn request(&mut self) -> bool {
         let dn = self.generate_dn();
-
         if let Some(ref mut ldap) = self.base.ldap {
             let start_time = Instant::now();
             let result = ldap.simple_bind(&dn, &self.args.common.bind_pw).await;
