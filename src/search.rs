@@ -64,25 +64,14 @@ impl HasCommonArgs for SearchArgs {
 pub struct SearchJob {
     base: BaseJob,
     args: SearchArgs,
-    id_range: u32,
     attrs: Vec<String>,
 }
 
 impl SearchJob {
     fn generate_filter(&self) -> String {
-        if self.id_range > 0 {
-            let id = {
-                let mut rng = rand::rng();
-                rng.random_range(self.args.first..=self.args.last)
-            };
-            self.args.filter
-                .replace("%d", &id.to_string())
-                .replace("%04d", &format!("{:04}", id))
-                .replace("%03d", &format!("{:03}", id))
-                .replace("%02d", &format!("{:02}", id))
-        } else {
-            self.args.filter.clone()
-        }
+        let mut rng = rand::rng();
+        let id = rng.random_range(0..=self.base.count);
+        format!("cn={}-{}", self.base.tid, id)
     }
 }
 
@@ -91,11 +80,6 @@ impl Job for SearchJob {
     type Args = SearchArgs;
 
     fn new(tid: usize, args: &Self::Args) -> Self {
-        let id_range = if args.filter.contains('%') && args.last > 0 {
-            args.last - args.first + 1
-        } else {
-            0
-        };
         let attrs: Vec<String> = args.attributes
             .split(',')
             .map(|s| s.trim().to_string())
@@ -104,7 +88,6 @@ impl Job for SearchJob {
         SearchJob {
             base: BaseJob::new(tid),
             args: args.clone(),
-            id_range,
             attrs,
         }
     }
