@@ -8,49 +8,21 @@ This tool is designed to allow perform by command line such as Apache Bench.
 
 ## Build
 
-### Build requirements
-
-* Golang 1.4 or later
-
-for Debian or Ubuntu
-
 ~~~
-# apt-get install golang
-~~~
-
-Set GOPATH
-
-~~~
-$ export GOPATH=~/go
-$ export PATH=$GOPATH/bin:$PATH
-~~~
-
-### Install lb command
-~~~
-$ go get github.com/hamano/lb
+$ cargo build -r
 ~~~
 
 ## Usage
 
-lb have setup sub-command that preparing for benchmarking.
+lb has base/person subcommands for preparing benchmarking entries.
 
-### Setup subcommand
+### Base subcommand
 
 * Add base entry
 ~~~
-$ lb setup base -b 'dc=example,dc=com' ldap://localhost/
+$ lb base -b 'dc=example,dc=com' ldap://localhost/
 ~~~
 This command add base entry.
-
-* Add single entry
-~~~
-$ lb setup person --cn 'test' ldap://localhost/
-~~~
-
-* Add range entries
-~~~
-$ lb setup person --cn 'user%d' --last 10 ldap://localhost/
-~~~
 
 ### ADD Benchmarking
 
