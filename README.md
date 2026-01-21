@@ -24,8 +24,6 @@ $ cargo build -r
 
 ## Usage
 
-lb has base/person subcommands for preparing benchmarking entries.
-
 ### Base subcommand
 
 * Add base entry
