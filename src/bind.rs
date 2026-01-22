@@ -9,14 +9,6 @@ use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
 pub struct BindArgs {
     #[command(flatten)]
     pub common: CommonArgs,
-
-    /// First ID for random DN generation
-    #[arg(long, default_value_t = 1)]
-    pub first: u32,
-
-    /// Last ID for random DN generation (0 means no range)
-    #[arg(long, default_value_t = 0)]
-    pub last: u32,
 }
 
 impl HasCommonArgs for BindArgs {
