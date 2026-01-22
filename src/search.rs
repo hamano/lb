@@ -45,14 +45,6 @@ pub struct SearchArgs {
     /// Attributes to retrieve (comma-separated)
     #[arg(short = 'a', long, default_value = "dn")]
     pub attributes: String,
-
-    /// First ID for random filter generation
-    #[arg(long, default_value_t = 1)]
-    pub first: u32,
-
-    /// Last ID for random filter generation (0 means no range)
-    #[arg(long, default_value_t = 0)]
-    pub last: u32,
 }
 
 impl HasCommonArgs for SearchArgs {
@@ -71,7 +63,7 @@ impl SearchJob {
     fn generate_filter(&self) -> String {
         let mut rng = rand::rng();
         let id = rng.random_range(0..=self.base.count);
-        format!("cn={}-{}", self.base.tid, id)
+        format!("(cn={}-{})", self.base.tid, id)
     }
 }
 
