@@ -110,7 +110,7 @@ impl Job for SearchJob {
             self.base.record_latency(duration.as_micros() as u64);
 
             match result {
-                Ok(result) => result.0.len() > 0,
+                Ok(result) => !result.0.is_empty(),
                 Err(_) => false,
             }
         } else {

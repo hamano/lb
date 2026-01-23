@@ -155,7 +155,7 @@ pub trait Job: Send + 'static {
 
     async fn run(&mut self) -> TaskResult {
         let common = self.args().common().clone();
-        let num_per_task = (common.number + common.concurrency - 1) / common.concurrency;
+        let num_per_task = common.number.div_ceil(common.concurrency);
 
         let start_time = Instant::now();
 
@@ -344,7 +344,7 @@ fn print_histogram_bars(histogram: &Histogram, total: u64) {
     }
 
     let display_buckets: Vec<(u64, u64, u64)> = if buckets.len() > MAX_ROWS {
-        let buckets_per_group = (buckets.len() + MAX_ROWS - 1) / MAX_ROWS;
+        let buckets_per_group = buckets.len().div_ceil(MAX_ROWS);
         buckets
             .chunks(buckets_per_group)
             .map(|chunk| {

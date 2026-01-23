@@ -30,8 +30,8 @@ impl BindJob {
             .args
             .common
             .bind_dn
-            .splitn(2, ',')
-            .nth(1)
+            .split_once(',')
+            .map(|x| x.1)
             .unwrap_or(self.args.common.bind_dn.as_str());
 
         format!("cn={}-{},{}", self.base.tid, id, base_dn)
