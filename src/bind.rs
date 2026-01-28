@@ -25,7 +25,12 @@ pub struct BindJob {
 impl BindJob {
     fn generate_dn(&self) -> String {
         let mut rng = rand::rng();
-        let id = rng.random_range(0..=self.base.count);
+        let n = self.args.common.number;
+        let id = if n > 0 {
+            rng.random_range(0..n)
+        } else {
+            0
+        };
         let base_dn = self
             .args
             .common
@@ -34,7 +39,7 @@ impl BindJob {
             .map(|x| x.1)
             .unwrap_or(self.args.common.bind_dn.as_str());
 
-        format!("cn={}-{},{}", self.base.tid, id, base_dn)
+        format!("cn={},{}", id, base_dn)
     }
 }
 

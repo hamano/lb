@@ -62,8 +62,13 @@ pub struct SearchJob {
 impl SearchJob {
     fn generate_filter(&self) -> String {
         let mut rng = rand::rng();
-        let id = rng.random_range(0..=self.base.count);
-        format!("(cn={}-{})", self.base.tid, id)
+        let n = self.args.common.number;
+        let id = if n > 0 {
+            rng.random_range(0..n)
+        } else {
+            0
+        };
+        format!("(cn={})", id)
     }
 }
 

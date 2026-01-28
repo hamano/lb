@@ -58,15 +58,16 @@ impl Job for AddJob {
         let cn = if self.args.uuid {
             Uuid::new_v4().to_string()
         } else {
-            format!("{}-{}", self.base.tid, self.base.count)
+            format!("{}", self.base.start_index + self.base.count)
         };
 
         let dn = format!("cn={},{}", cn, self.args.base_dn);
+        let tid_str = self.base.tid.to_string();
 
         let attrs = vec![
             ("objectClass", vec!["person"].into_iter().collect()),
             ("cn", vec![cn.as_str()].into_iter().collect()),
-            ("sn", vec!["sn"].into_iter().collect()),
+            ("sn", vec![tid_str.as_str()].into_iter().collect()),
             ("userPassword", vec!["secret"].into_iter().collect()),
         ];
 

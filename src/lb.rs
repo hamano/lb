@@ -64,6 +64,8 @@ pub struct BaseJob {
     pub count: usize,
     pub success: usize,
     pub histogram: Histogram,
+    pub start_index: usize,
+    pub end_index: usize,
 }
 
 impl BaseJob {
@@ -75,7 +77,14 @@ impl BaseJob {
             success: 0,
             histogram: Histogram::new(HISTOGRAM_GROUPING_POWER, HISTOGRAM_MAX_VALUE_POWER)
                 .expect("Failed to create histogram"),
+            start_index: 0,
+            end_index: 0,
         }
+    }
+
+    pub fn set_index_range(&mut self, start: usize, end: usize) {
+        self.start_index = start;
+        self.end_index = end;
     }
 
     pub async fn connect(&mut self, url: &str) -> bool {
@@ -155,12 +164,12 @@ pub trait Job: Send + 'static {
     }
 
     async fn run(&mut self) -> TaskResult {
-        let common = self.args().common().clone();
-        let num_per_task = common.number.div_ceil(common.concurrency);
+        let base = self.base();
+        let num_requests = base.end_index - base.start_index;
 
         let start_time = Instant::now();
 
-        for _ in 0..num_per_task {
+        for _ in 0..num_requests {
             if self.request().await {
                 self.base().success += 1;
             }
@@ -178,6 +187,7 @@ pub trait Job: Send + 'static {
 pub async fn run_benchmark<J: Job>(args: &J::Args) -> Vec<TaskResult> {
     let common = args.common();
     let c = common.concurrency;
+    let n = common.number;
     let (tx, mut rx) = mpsc::channel(c);
     let barrier = Arc::new(Barrier::new(c));
     let args = Arc::new(args.clone());
@@ -187,8 +197,15 @@ pub async fn run_benchmark<J: Job>(args: &J::Args) -> Vec<TaskResult> {
         let tx = tx.clone();
         let args = args.clone();
 
+        // Calculate the range for this task
+        let base_per_task = n / c;
+        let remainder = n % c;
+        let start = i * base_per_task + i.min(remainder);
+        let end = start + base_per_task + if i < remainder { 1 } else { 0 };
+
         tokio::spawn(async move {
             let mut job = J::new(i, &args);
+            job.base().set_index_range(start, end);
 
             if !job.connect().await {
                 return;
