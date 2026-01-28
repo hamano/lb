@@ -1,13 +1,13 @@
 use clap::{Parser, Subcommand};
 
-mod lb;
-mod bind;
 mod add;
-mod search;
-mod modify;
+mod bind;
 mod delete;
-mod test;
+mod lb;
+mod modify;
+mod search;
 mod setup;
+mod test;
 
 use lb::run_job;
 

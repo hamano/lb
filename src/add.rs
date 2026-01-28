@@ -1,6 +1,6 @@
-use std::time::Instant;
 use async_trait::async_trait;
 use clap::Args;
+use std::time::Instant;
 use uuid::Uuid;
 
 use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
@@ -74,7 +74,7 @@ impl Job for AddJob {
             let start_time = Instant::now();
             let result = ldap.add(&dn, attrs).await;
             let duration = start_time.elapsed();
-            
+
             self.base.record_latency(duration.as_micros() as u64);
 
             match result {

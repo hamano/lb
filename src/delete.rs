@@ -1,6 +1,6 @@
-use std::time::Instant;
 use async_trait::async_trait;
 use clap::Args;
+use std::time::Instant;
 
 use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
 
@@ -50,7 +50,10 @@ impl Job for DeleteJob {
     }
 
     async fn request(&mut self) -> bool {
-        let dn = format!("cn={}-{},{}", self.base.tid, self.base.count, self.args.base_dn);
+        let dn = format!(
+            "cn={}-{},{}",
+            self.base.tid, self.base.count, self.args.base_dn
+        );
 
         if let Some(ref mut ldap) = self.base.ldap {
             let start_time = Instant::now();

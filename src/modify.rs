@@ -1,7 +1,7 @@
-use std::time::Instant;
 use async_trait::async_trait;
 use clap::Args;
 use ldap3::Mod;
+use std::time::Instant;
 
 use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
 
@@ -59,10 +59,14 @@ impl Job for ModifyJob {
     }
 
     async fn request(&mut self) -> bool {
-        let dn = format!("cn={}-{},{}", self.base.tid, self.base.count, self.args.base_dn);
-        let mods = vec![
-            Mod::Replace(&self.args.attr, [&self.args.value].into_iter().collect()),
-        ];
+        let dn = format!(
+            "cn={}-{},{}",
+            self.base.tid, self.base.count, self.args.base_dn
+        );
+        let mods = vec![Mod::Replace(
+            &self.args.attr,
+            [&self.args.value].into_iter().collect(),
+        )];
 
         if let Some(ref mut ldap) = self.base.ldap {
             let start_time = Instant::now();

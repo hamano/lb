@@ -1,13 +1,13 @@
 //! Common benchmark framework for LDAP operations
 
-use std::sync::Arc;
-use std::time::Instant;
 use async_trait::async_trait;
 use clap::Args;
 use histogram::Histogram;
 use ldap3::LdapConnAsync;
-use tokio::sync::Barrier;
+use std::sync::Arc;
+use std::time::Instant;
 use tokio::sync::mpsc;
+use tokio::sync::Barrier;
 use tokio::time::{timeout, Duration};
 
 #[derive(Debug, Args, Clone)]
@@ -189,14 +189,14 @@ pub async fn run_benchmark<J: Job>(args: &J::Args) -> Vec<TaskResult> {
 
         tokio::spawn(async move {
             let mut job = J::new(i, &args);
-            
+
             if !job.connect().await {
                 return;
             }
             if !job.prepare().await {
                 return;
             }
-            
+
             // Wait for all tasks to be ready, but don't block forever.
             let _ = timeout(Duration::from_secs(10), barrier.wait()).await;
 
@@ -317,10 +317,7 @@ fn print_histogram_stats(histogram: &Histogram) {
         if let Ok(Some(bucket)) = histogram.percentile(p) {
             let mid = (bucket.start() + bucket.end()) / 2;
             let (val, unit) = format_latency(mid);
-            println!(
-                "  p{:>5.1}: {:>8} {}",
-                p, val, unit
-            );
+            println!("  p{:>5.1}: {:>8} {}", p, val, unit);
         }
     }
 
@@ -359,7 +356,11 @@ fn print_histogram_bars(histogram: &Histogram, total: u64) {
         buckets
     };
 
-    let max_count = display_buckets.iter().map(|(_, _, c)| *c).max().unwrap_or(1);
+    let max_count = display_buckets
+        .iter()
+        .map(|(_, _, c)| *c)
+        .max()
+        .unwrap_or(1);
 
     for (start, end, count) in display_buckets {
         let percentage = count as f64 / total as f64 * 100.0;

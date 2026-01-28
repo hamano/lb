@@ -1,8 +1,8 @@
-use std::time::Instant;
 use async_trait::async_trait;
 use clap::{Args, ValueEnum};
 use ldap3::Scope;
 use rand::Rng;
+use std::time::Instant;
 
 use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
 
@@ -72,7 +72,8 @@ impl Job for SearchJob {
     type Args = SearchArgs;
 
     fn new(tid: usize, args: &Self::Args) -> Self {
-        let attrs: Vec<String> = args.attributes
+        let attrs: Vec<String> = args
+            .attributes
             .split(',')
             .map(|s| s.trim().to_string())
             .collect();

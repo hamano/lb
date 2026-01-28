@@ -99,7 +99,10 @@ async fn setup_base(common: &CommonArgs, quiet: bool, base_args: &BaseArgs) {
         .unwrap_or("example");
 
     let attrs = vec![
-        ("objectClass", vec!["dcObject", "organization"].into_iter().collect()),
+        (
+            "objectClass",
+            vec!["dcObject", "organization"].into_iter().collect(),
+        ),
         ("o", vec!["lb"].into_iter().collect()),
         ("dc", vec![dc_value].into_iter().collect()),
     ];
@@ -141,7 +144,9 @@ async fn setup_person(common: &CommonArgs, quiet: bool, person_args: &PersonArgs
         for i in person_args.first..=person_args.last {
             let cn = if person_args.cn.contains('%') {
                 // Format string support (e.g., "user%04d" -> "user0001")
-                person_args.cn.replace("%d", &i.to_string())
+                person_args
+                    .cn
+                    .replace("%d", &i.to_string())
                     .replace("%04d", &format!("{:04}", i))
                     .replace("%03d", &format!("{:03}", i))
                     .replace("%02d", &format!("{:02}", i))
@@ -157,12 +162,7 @@ async fn setup_person(common: &CommonArgs, quiet: bool, person_args: &PersonArgs
     let _ = ldap.unbind().await;
 }
 
-async fn setup_one_person(
-    quiet: bool,
-    ldap: &mut ldap3::Ldap,
-    cn: &str,
-    person_args: &PersonArgs,
-) {
+async fn setup_one_person(quiet: bool, ldap: &mut ldap3::Ldap, cn: &str, person_args: &PersonArgs) {
     let sn = person_args.sn.as_deref().unwrap_or(cn);
     let dn = format!("cn={},{}", cn, person_args.base_dn);
 
@@ -174,7 +174,10 @@ async fn setup_one_person(
         ("objectClass", vec!["person"].into_iter().collect()),
         ("cn", vec![cn].into_iter().collect()),
         ("sn", vec![sn].into_iter().collect()),
-        ("userPassword", vec![person_args.password.as_str()].into_iter().collect()),
+        (
+            "userPassword",
+            vec![person_args.password.as_str()].into_iter().collect(),
+        ),
     ];
 
     match ldap.add(&dn, attrs).await {

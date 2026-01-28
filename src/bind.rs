@@ -1,7 +1,7 @@
-use std::time::Instant;
 use async_trait::async_trait;
 use clap::Args;
 use rand::Rng;
+use std::time::Instant;
 
 use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
 
