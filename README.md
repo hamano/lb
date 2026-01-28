@@ -8,8 +8,14 @@ This tool is designed to allow perform by command line such as Apache Bench.
 
 *There are some specification changes from version 2.0.0 onwards. Please check the usage.*
 
-ADD benchmarking adds entries in the format `cn=${THREADID}-${COUNT}`.
-DELETE benchmarking is similar. Therefore,
+ADD benchmarking adds entries sequentially with `cn=0, cn=1, cn=2, ...`, distributed across concurrent tasks.
+Each task handles a specific range of entries to ensure exact total request counts.
+
+For example, with `-n 10 -c 2`:
+- Task 0 adds: cn=0, cn=1, cn=2, cn=3, cn=4
+- Task 1 adds: cn=5, cn=6, cn=7, cn=8, cn=9
+
+DELETE benchmarking follows the same pattern. Therefore:
 - ADD benchmarking
 - Various operation benchmarking
 - DELETE benchmarking
@@ -38,12 +44,19 @@ This command add base entry.
 $ lb add -c 10 -n 1000 ldap://localhost/
 ~~~
 
-This command add following entries 1000 times with 10 threads.
+This command adds 1000 entries with 10 concurrent tasks.
+Each task handles a specific range of sequential entries.
 
+For example, with `-c 2 -n 10`:
+- Task 0 (tid=0) adds: cn=0, cn=1, cn=2, cn=3, cn=4
+- Task 1 (tid=1) adds: cn=5, cn=6, cn=7, cn=8, cn=9
+
+Entry format:
 ~~~
-dn: cn=${THREADID}-${COUNT},dc=example,dc=com
-cn: ${THREADID}-${COUNT}
-sn: sn
+dn: cn=${INDEX},dc=example,dc=com
+cn: ${INDEX}
+sn: ${THREADID}
+objectClass: person
 userPassword: secret
 ~~~
 
@@ -55,7 +68,8 @@ $ lb add -c 10 -n 1000 --uuid ldap://localhost/
 ~~~
 dn: cn=${UUID},dc=example,dc=com
 cn: ${UUID}
-sn: sn
+sn: ${THREADID}
+objectClass: person
 userPassword: secret
 ~~~
 
@@ -65,12 +79,19 @@ userPassword: secret
 $ lb delete -c 10 -n 1000 ldap://localhost/
 ~~~
 
-This command make delete request with following DNs:
+This command makes 1000 delete requests with 10 concurrent tasks.
+Each task handles a specific range of sequential entries.
 
+For example, with `-c 2 -n 10`:
+- Task 0 deletes: cn=0, cn=1, cn=2, cn=3, cn=4
+- Task 1 deletes: cn=5, cn=6, cn=7, cn=8, cn=9
+
+DNs being deleted:
 ~~~
-cn=0-0,dc=example,dc=com
+cn=0,dc=example,dc=com
+cn=1,dc=example,dc=com
 ...
-cn=9-999,dc=example,dc=com
+cn=999,dc=example,dc=com
 ~~~
 
 ### BIND Benchmarking
@@ -80,25 +101,36 @@ cn=9-999,dc=example,dc=com
 ~~~
 $ lb bind -c 10 -n 1000 -D cn=user,dc=example,dc=com -w secret ldap://localhost/
 ~~~
-This command make 1000 times bind request with 10 threads.
+This command makes 1000 bind requests with 10 concurrent tasks (100 requests per task).
 
-* BIND Benchmarking with ranged random entries
+* BIND Benchmarking with random entries
+
+Each task randomly selects entries from cn=0 to cn=(n-1) for binding.
+
 ~~~
-$ lb bind -D 'cn=user%d,dc=example,dc=com' -w secret --last 10 ldap://localhost/
+$ lb bind -c 10 -n 1000 -D 'cn=Manager,dc=example,dc=com' -w secret ldap://localhost/
 ~~~
+
+This performs 1000 bind requests, randomly selecting from entries cn=0 through cn=999.
 
 ### SEARCH Benchmarking
 
 * Search Benchmarking with random filters
-~~~
-$ lb search -c 10 -n 1000 -a "(cn=user%d)" --last 1000 -s sub ldap://localhost/
-~~~
-This command make 1000 times search request with following random filters:
 
 ~~~
-(cn=user1)
+$ lb search -c 10 -n 1000 -s sub ldap://localhost/
+~~~
+
+This command makes 1000 search requests with 10 concurrent tasks.
+Each task randomly selects entries from cn=0 to cn=(n-1) for search filters.
+
+For example, with `-n 1000`, searches are performed with random filters:
+~~~
+(cn=0)
+(cn=125)
+(cn=573)
 ...
-(cn=user1000)
+(cn=999)
 ~~~
 
 ### MODIFY Benchmarking
@@ -107,12 +139,19 @@ This command make 1000 times search request with following random filters:
 $ lb modify -c 10 -n 1000 --attr sn --value modified ldap://localhost/
 ~~~
 
-This command make modify request with following DNs:
+This command makes 1000 modify requests with 10 concurrent tasks.
+Each task handles a specific range of sequential entries.
 
+For example, with `-c 2 -n 10`:
+- Task 0 modifies: cn=0, cn=1, cn=2, cn=3, cn=4
+- Task 1 modifies: cn=5, cn=6, cn=7, cn=8, cn=9
+
+DNs being modified:
 ~~~
-cn=0-0,dc=example,dc=com
+cn=0,dc=example,dc=com
+cn=1,dc=example,dc=com
 ...
-cn=9-999,dc=example,dc=com
+cn=999,dc=example,dc=com
 ~~~
 
 ## TODO
