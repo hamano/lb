@@ -8,6 +8,7 @@ use histogram::Histogram;
 use ldap3::LdapConnAsync;
 use tokio::sync::Barrier;
 use tokio::sync::mpsc;
+use tokio::time::{timeout, Duration};
 
 #[derive(Debug, Args, Clone)]
 pub struct CommonArgs {
@@ -196,8 +197,8 @@ pub async fn run_benchmark<J: Job>(args: &J::Args) -> Vec<TaskResult> {
                 return;
             }
             
-            // Wait for all tasks to be ready
-            barrier.wait().await;
+            // Wait for all tasks to be ready, but don't block forever.
+            let _ = timeout(Duration::from_secs(10), barrier.wait()).await;
 
             let result = job.run().await;
             let _ = tx.send(result).await;
