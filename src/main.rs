@@ -5,6 +5,7 @@ mod bind;
 mod delete;
 mod lb;
 mod modify;
+mod passmod;
 mod search;
 mod setup;
 mod test;
@@ -32,6 +33,8 @@ enum Commands {
     Modify(modify::ModifyArgs),
     #[command(about = "LDAP DELETE Benchmarking")]
     Delete(delete::DeleteArgs),
+    #[command(about = "LDAP Password Modify Extended Operation Benchmarking")]
+    Passmod(passmod::PassmodArgs),
     #[command(about = "Dummy benchmark for testing")]
     Test(test::TestArgs),
     #[command(about = "Setup base entry")]
@@ -58,6 +61,9 @@ async fn main() {
         }
         Commands::Delete(args) => {
             run_job::<delete::DeleteJob>(&args).await;
+        }
+        Commands::Passmod(args) => {
+            run_job::<passmod::PassmodJob>(&args).await;
         }
         Commands::Test(args) => {
             run_job::<test::TestJob>(&args).await;
