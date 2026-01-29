@@ -4,7 +4,7 @@ use ldap3::LdapConnAsync;
 use crate::lb::CommonArgs;
 
 #[derive(Debug, Args)]
-pub struct SetupBaseArgs {
+pub struct BaseArgs {
     #[command(flatten)]
     pub common: CommonArgs,
 
@@ -13,11 +13,11 @@ pub struct SetupBaseArgs {
     pub quiet: bool,
 }
 
-pub async fn run_base(args: &SetupBaseArgs) {
-    setup_base(&args.common, args.quiet).await;
+pub async fn run(args: &BaseArgs) {
+    add_base(&args.common, args.quiet).await;
 }
 
-async fn setup_base(common: &CommonArgs, quiet: bool) {
+async fn add_base(common: &CommonArgs, quiet: bool) {
     let (conn, mut ldap) = match LdapConnAsync::new(&common.url).await {
         Ok(result) => result,
         Err(e) => {

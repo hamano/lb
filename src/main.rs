@@ -1,13 +1,13 @@
 use clap::{Parser, Subcommand};
 
 mod add;
+mod base;
 mod bind;
 mod delete;
 mod lb;
 mod modify;
 mod passmod;
 mod search;
-mod setup;
 mod test;
 
 use lb::run_job;
@@ -38,7 +38,7 @@ enum Commands {
     #[command(about = "Dummy benchmark for testing")]
     Test(test::TestArgs),
     #[command(about = "Setup base entry")]
-    Base(setup::SetupBaseArgs),
+    Base(base::BaseArgs),
 }
 
 #[tokio::main]
@@ -67,7 +67,7 @@ async fn main() {
             run_job::<test::TestJob>(&args).await;
         }
         Commands::Base(args) => {
-            setup::run_base(&args).await;
+            base::run(&args).await;
         }
     }
 }
