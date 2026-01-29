@@ -8,10 +8,6 @@ use crate::lb::{BaseJob, CommonArgs, HasCommonArgs, Job};
 pub struct DeleteArgs {
     #[command(flatten)]
     pub common: CommonArgs,
-
-    /// Base DN for entries
-    #[arg(short = 'b', long, default_value = "dc=example,dc=com")]
-    pub base_dn: String,
 }
 
 impl HasCommonArgs for DeleteArgs {
@@ -51,7 +47,7 @@ impl Job for DeleteJob {
 
     async fn request(&mut self) -> bool {
         let cn = self.base.start_index + self.base.count;
-        let dn = format!("cn={},{}", cn, self.args.base_dn);
+        let dn = format!("cn={},{}", cn, self.args.common.base_dn);
 
         if let Some(ref mut ldap) = self.base.ldap {
             let start_time = Instant::now();

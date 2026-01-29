@@ -13,10 +13,6 @@ pub struct AddArgs {
     /// Use UUID for cn attribute
     #[arg(long)]
     pub uuid: bool,
-
-    /// Base DN for entries
-    #[arg(short = 'b', long, default_value = "dc=example,dc=com")]
-    pub base_dn: String,
 }
 
 impl HasCommonArgs for AddArgs {
@@ -61,7 +57,7 @@ impl Job for AddJob {
             format!("{}", self.base.start_index + self.base.count)
         };
 
-        let dn = format!("cn={},{}", cn, self.args.base_dn);
+        let dn = format!("cn={},{}", cn, self.args.common.base_dn);
         let tid_str = self.base.tid.to_string();
 
         let attrs = vec![

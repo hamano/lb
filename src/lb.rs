@@ -24,6 +24,9 @@ pub struct CommonArgs {
     /// bind PW (default: "secret")
     #[arg(short = 'w', long, global = true, default_value_t = String::from("secret"))]
     pub bind_pw: String,
+    /// Base DN for entries
+    #[arg(short = 'b', long, global = true, default_value_t = String::from("dc=example,dc=com"))]
+    pub base_dn: String,
     // URL (default: http://localhost:396)
     #[arg(index = 1, help = "")]
     pub url: String,

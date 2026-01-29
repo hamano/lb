@@ -10,10 +10,6 @@ pub struct ModifyArgs {
     #[command(flatten)]
     pub common: CommonArgs,
 
-    /// Base DN for entries
-    #[arg(short = 'b', long, default_value = "dc=example,dc=com")]
-    pub base_dn: String,
-
     /// Attribute to modify
     #[arg(long, default_value = "sn")]
     pub attr: String,
@@ -60,7 +56,7 @@ impl Job for ModifyJob {
 
     async fn request(&mut self) -> bool {
         let cn = self.base.start_index + self.base.count;
-        let dn = format!("cn={},{}", cn, self.args.base_dn);
+        let dn = format!("cn={},{}", cn, self.args.common.base_dn);
         let mods = vec![Mod::Replace(
             &self.args.attr,
             [&self.args.value].into_iter().collect(),

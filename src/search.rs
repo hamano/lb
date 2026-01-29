@@ -30,10 +30,6 @@ pub struct SearchArgs {
     #[command(flatten)]
     pub common: CommonArgs,
 
-    /// Base DN for search
-    #[arg(short = 'b', long, default_value = "dc=example,dc=com")]
-    pub base_dn: String,
-
     /// Search scope
     #[arg(short = 's', long, value_enum, default_value = "sub")]
     pub scope: SearchScope,
@@ -110,7 +106,7 @@ impl Job for SearchJob {
 
         if let Some(ref mut ldap) = self.base.ldap {
             let start_time = Instant::now();
-            let result = ldap.search(&self.args.base_dn, scope, &filter, attrs).await;
+            let result = ldap.search(&self.args.common.base_dn, scope, &filter, attrs).await;
             let duration = start_time.elapsed();
 
             self.base.record_latency(duration.as_micros() as u64);
