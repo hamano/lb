@@ -11,11 +11,11 @@ pub struct PassmodArgs {
     pub common: CommonArgs,
 
     /// New password to set
-    #[arg(long, default_value = "newsecret")]
+    #[arg(short = 's', long = "new-password", default_value = "newpassword")]
     pub new_password: String,
 
-    /// Old password (if not provided, uses bind password)
-    #[arg(long)]
+    /// Old password (if not provided, server will not verify old password)
+    #[arg(short = 'a', long = "old-password")]
     pub old_password: Option<String>,
 }
 
@@ -57,16 +57,13 @@ impl Job for PassmodJob {
     async fn request(&mut self) -> bool {
         let cn = self.base.start_index + self.base.count;
         let user_dn = format!("cn={},{}", cn, self.args.common.base_dn);
-        
-        let old_pw = self.args.old_password.as_deref()
-            .unwrap_or(&self.args.common.bind_pw);
 
         if let Some(ref mut ldap) = self.base.ldap {
             let start_time = Instant::now();
             
             let exop = PasswordModify {
                 user_id: Some(&user_dn),
-                old_pass: Some(old_pw),
+                old_pass: self.args.old_password.as_deref(),
                 new_pass: Some(&self.args.new_password),
             };
             
