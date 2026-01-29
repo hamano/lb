@@ -64,7 +64,7 @@ impl Job for AddJob {
             ("objectClass", vec!["person"].into_iter().collect()),
             ("cn", vec![cn.as_str()].into_iter().collect()),
             ("sn", vec![tid_str.as_str()].into_iter().collect()),
-            ("userPassword", vec!["secret"].into_iter().collect()),
+            ("userPassword", vec!["password"].into_iter().collect()),
         ];
 
         if let Some(ref mut ldap) = self.base.ldap {
