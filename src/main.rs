@@ -39,8 +39,6 @@ enum Commands {
     Test(test::TestArgs),
     #[command(about = "Setup base entry")]
     Base(setup::SetupBaseArgs),
-    #[command(about = "Setup person entries")]
-    Person(setup::SetupPersonArgs),
 }
 
 #[tokio::main]
@@ -70,9 +68,6 @@ async fn main() {
         }
         Commands::Base(args) => {
             setup::run_base(&args).await;
-        }
-        Commands::Person(args) => {
-            setup::run_person(&args).await;
         }
     }
 }
