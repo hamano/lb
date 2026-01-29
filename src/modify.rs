@@ -59,10 +59,8 @@ impl Job for ModifyJob {
     }
 
     async fn request(&mut self) -> bool {
-        let dn = format!(
-            "cn={}-{},{}",
-            self.base.tid, self.base.count, self.args.base_dn
-        );
+        let cn = self.base.start_index + self.base.count;
+        let dn = format!("cn={},{}", cn, self.args.base_dn);
         let mods = vec![Mod::Replace(
             &self.args.attr,
             [&self.args.value].into_iter().collect(),
