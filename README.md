@@ -55,9 +55,9 @@ Entry format:
 ~~~
 dn: cn=${INDEX},dc=example,dc=com
 cn: ${INDEX}
-sn: ${THREADID}
+sn: ${TASK_ID}
 objectClass: person
-userPassword: secret
+userPassword: password
 ~~~
 
 Use --uuid option if you want to use UUID for cn.
@@ -68,9 +68,9 @@ $ lb add -c 10 -n 1000 --uuid ldap://localhost/
 ~~~
 dn: cn=${UUID},dc=example,dc=com
 cn: ${UUID}
-sn: ${THREADID}
+sn: ${TASK_ID}
 objectClass: person
-userPassword: secret
+userPassword: password
 ~~~
 
 ### DELETE Benchmarking
@@ -99,19 +99,13 @@ cn=999,dc=example,dc=com
 * BIND Benchmarking with single entry
 
 ~~~
-$ lb bind -c 10 -n 1000 -D cn=user,dc=example,dc=com -w secret ldap://localhost/
+$ lb bind -c 10 -n 1000 ldap://localhost/
 ~~~
 This command makes 1000 bind requests with 10 concurrent tasks (100 requests per task).
 
 * BIND Benchmarking with random entries
 
 Each task randomly selects entries from cn=0 to cn=(n-1) for binding.
-
-~~~
-$ lb bind -c 10 -n 1000 -D 'cn=Manager,dc=example,dc=com' -w secret ldap://localhost/
-~~~
-
-This performs 1000 bind requests, randomly selecting from entries cn=0 through cn=999.
 
 ### SEARCH Benchmarking
 
